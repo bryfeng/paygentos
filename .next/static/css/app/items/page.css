@@ -1,0 +1,371 @@
+/*!*************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./src/styles/components/ItemList.module.css ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************************/
+.ItemList_container__clFfr {
+  padding: 16px;
+}
+
+.ItemList_header__950IM {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ItemList_title__k3SYQ {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.ItemList_addButton__tRWIu {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #0070f3;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+.ItemList_addButtonIcon__F10EY {
+  margin-right: 8px;
+}
+
+.ItemList_filters__e35_i {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.ItemList_filterGroup__Rrhi4 {
+  display: flex;
+  flex-direction: column;
+}
+
+.ItemList_filterSelect__f44Vt {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.ItemList_itemsGrid__iHZnK {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.ItemList_itemCard__uzxln {
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ItemList_itemHeader__qgF80 {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ItemList_itemStatus__SaPuS {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+}
+
+.ItemList_itemType__D5VkQ {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+}
+
+.ItemList_itemName__A45hn {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.ItemList_itemPrice__z0hlR {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.ItemList_itemVendor__m5zgk {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.ItemList_itemEvent__iOolS {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.ItemList_itemActions__JX_lZ {
+  display: flex;
+  gap: 8px;
+}
+
+.ItemList_viewButton___qEe3 {
+  padding: 8px 16px;
+  background-color: #0070f3;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.ItemList_editButton__Vr2ni {
+  padding: 8px 16px;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+.ItemList_loadingContainer__v_nyj {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.ItemList_loadingIcon__IK0Wr {
+  margin-right: 8px;
+}
+
+.ItemList_loadingText__fOwVA {
+  font-size: 16px;
+}
+
+.ItemList_errorContainer__dKXST {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+.ItemList_errorIcon__Uu7jU {
+  margin-bottom: 8px;
+}
+
+.ItemList_errorTitle__bl9uY {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.ItemList_errorMessage__iBHtO {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.ItemList_retryButton__sV7xc {
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.ItemList_emptyState__KRoqR {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
+}
+
+/* Modal styles */
+.ItemList_modalOverlay___a04l {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.ItemList_modalContent__qy4gu {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.ItemList_emptyIcon__KJAAI {
+  margin-bottom: 8px;
+}
+
+.ItemList_emptyTitle__F6qhd {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.ItemList_emptyDescription___akzv {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.ItemList_emptyButton__93s2D {
+  padding: 8px 16px;
+  background-color: #0070f3;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+/*!*************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./src/styles/components/ItemForm.module.css ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************************/
+.ItemForm_container__quyY7 {
+  padding: 16px;
+}
+
+.ItemForm_header__Fxe9T {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ItemForm_pageTitle__5JAcB {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.ItemForm_backLink__JzAdT {
+  display: inline-flex;
+  align-items: center;
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.ItemForm_backIcon__7bL67 {
+  margin-right: 8px;
+}
+
+.ItemForm_card__7q_ls {
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ItemForm_formBody__ZHo9o {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ItemForm_formSection__ypnEr {
+  margin-bottom: 16px;
+}
+
+.ItemForm_sectionTitle__QPt4P {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.ItemForm_formGrid__8iUOb {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.ItemForm_formGroup__4t51D {
+  display: flex;
+  flex-direction: column;
+}
+
+.ItemForm_formLabel__3ADnF {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.ItemForm_formInput__YWce_, .ItemForm_formTextarea__87a__, .ItemForm_formSelect__gFcIZ {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.ItemForm_formTextarea__87a__ {
+  resize: vertical;
+}
+
+.ItemForm_formFooter__8G_Nt {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.ItemForm_cancelButton__hEMmi, .ItemForm_submitButton__c_v8p {
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: white;
+}
+
+.ItemForm_cancelButton__hEMmi {
+  background-color: #6c757d;
+}
+
+.ItemForm_submitButton__c_v8p {
+  background-color: #0070f3;
+}
+
+.ItemForm_loading__Lpliy {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.ItemForm_errorAlert__2SwKi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+.ItemForm_errorAlertContent__3ditd {
+  display: flex;
+  align-items: center;
+}
+
+.ItemForm_errorAlertIcon__Y9uG9 {
+  margin-right: 8px;
+}
+
+.ItemForm_errorAlertMessage__CdnTd {
+  font-size: 14px;
+}
+

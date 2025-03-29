@@ -1,0 +1,94 @@
+/*!***************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./src/styles/components/ItemDetail.module.css ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************/
+.ItemDetail_container__CIhYK {
+  padding: 16px;
+}
+
+.ItemDetail_header__fIgSS {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ItemDetail_pageTitle__rjdWy {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.ItemDetail_backLink__AhV3X {
+  display: inline-flex;
+  align-items: center;
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.ItemDetail_backIcon__0sRJ3 {
+  margin-right: 8px;
+}
+
+.ItemDetail_card__Bfr_K {
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ItemDetail_cardSection__3rh1Y {
+  margin-bottom: 16px;
+}
+
+.ItemDetail_sectionTitle__aCWF2 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.ItemDetail_itemDescription__Svdxl {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.ItemDetail_itemType__hP1w1, .ItemDetail_itemStatus__fnHx4, .ItemDetail_itemPrice__L0KR8, .ItemDetail_itemVendor__yQajJ, .ItemDetail_itemEvent__UW3aH {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.ItemDetail_loading__7iqxl {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.ItemDetail_errorContainer__7uUn6 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+.ItemDetail_errorTitle__Bd0Tn {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.ItemDetail_errorMessage__83cCv {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.ItemDetail_retryButton__nLWjT {
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+}
+

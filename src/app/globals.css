@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 247, 250, 252;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  font-family: 'Inter', sans-serif;
+}
+
+@layer components {
+  /* Custom utility classes */
+  .card {
+    @apply bg-white rounded-xl shadow-card hover:shadow-lg transition-shadow duration-300;
+  }
+
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-100;
+  }
+
+  .card-content {
+    @apply px-6 py-4;
+  }
+
+  .card-footer {
+    @apply px-6 py-4 bg-gray-50 border-t border-gray-100;
+  }
+
+  .btn {
+    @apply rounded-lg px-4 py-2 transition-colors duration-200 font-medium;
+  }
+
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary-600 hover:bg-secondary-700 text-white;
+  }
+
+  .btn-outline {
+    @apply border border-primary-600 text-primary-600 hover:bg-primary-50;
+  }
+
+  /* Dashboard specific styles */
+  .stat-card {
+    @apply bg-white p-6 rounded-xl shadow-card flex flex-col;
+  }
+
+  .stat-card-title {
+    @apply text-secondary-600 font-medium text-sm uppercase tracking-wide mb-1;
+  }
+
+  .stat-card-value {
+    @apply text-3xl font-bold text-secondary-900;
+  }
+
+  .activity-item {
+    @apply border-l-4 pl-4 py-2 mb-4 relative;
+  }
+
+  .activity-item::before {
+    content: '';
+    @apply absolute w-3 h-3 rounded-full bg-white border-4 border-primary-500 -left-[9px] top-3;
+  }
+
+  .activity-item.customer {
+    @apply border-blue-500;
+  }
+
+  .activity-item.event {
+    @apply border-green-500;
+  }
+
+  .activity-item.expense {
+    @apply border-red-500;
+  }
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 768px) {
+  .container {
+    @apply px-4;
+  }
+  
+  .stat-card {
+    @apply p-4;
+  }
+  
+  .stat-card-value {
+    @apply text-2xl;
+  }
+}

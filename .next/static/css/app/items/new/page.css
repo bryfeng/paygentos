@@ -1,0 +1,131 @@
+/*!*************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./src/styles/components/ItemForm.module.css ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************************/
+.ItemForm_container__quyY7 {
+  padding: 16px;
+}
+
+.ItemForm_header__Fxe9T {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ItemForm_pageTitle__5JAcB {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.ItemForm_backLink__JzAdT {
+  display: inline-flex;
+  align-items: center;
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.ItemForm_backIcon__7bL67 {
+  margin-right: 8px;
+}
+
+.ItemForm_card__7q_ls {
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ItemForm_formBody__ZHo9o {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ItemForm_formSection__ypnEr {
+  margin-bottom: 16px;
+}
+
+.ItemForm_sectionTitle__QPt4P {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.ItemForm_formGrid__8iUOb {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.ItemForm_formGroup__4t51D {
+  display: flex;
+  flex-direction: column;
+}
+
+.ItemForm_formLabel__3ADnF {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.ItemForm_formInput__YWce_, .ItemForm_formTextarea__87a__, .ItemForm_formSelect__gFcIZ {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.ItemForm_formTextarea__87a__ {
+  resize: vertical;
+}
+
+.ItemForm_formFooter__8G_Nt {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.ItemForm_cancelButton__hEMmi, .ItemForm_submitButton__c_v8p {
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: white;
+}
+
+.ItemForm_cancelButton__hEMmi {
+  background-color: #6c757d;
+}
+
+.ItemForm_submitButton__c_v8p {
+  background-color: #0070f3;
+}
+
+.ItemForm_loading__Lpliy {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.ItemForm_errorAlert__2SwKi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+.ItemForm_errorAlertContent__3ditd {
+  display: flex;
+  align-items: center;
+}
+
+.ItemForm_errorAlertIcon__Y9uG9 {
+  margin-right: 8px;
+}
+
+.ItemForm_errorAlertMessage__CdnTd {
+  font-size: 14px;
+}
+
