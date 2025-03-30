@@ -59,10 +59,10 @@
       "static/css/app/items/new/page.css",
       "static/chunks/app/items/new/page.js"
     ],
-    "/_not-found/page": [
+    "/customers/new/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/customers/new/page.js"
     ]
   }
 }
