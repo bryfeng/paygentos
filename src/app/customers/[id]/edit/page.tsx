@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Customer } from '../../../../models/customer/customer';
+import { Customer, ContactType, ContactInfo } from '../../../../models/customer/customer';
 import { CustomerAPI } from '../../../../api/customer/customer-api';
-import { FiArrowLeft, FiSave, FiLoader, FiAlertCircle } from 'react-icons/fi';
+import { FiArrowLeft, FiSave, FiLoader, FiAlertCircle, FiPlus, FiTrash } from 'react-icons/fi';
 
 export default function EditCustomerPage() {
   const params = useParams();
@@ -16,12 +16,18 @@ export default function EditCustomerPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
+  const [formData, setFormData] = useState<Partial<Customer>>({
+    firstName: '',
+    lastName: '',
+    fullName: '',
     email: '',
-    phone: '',
     address: '',
-    isActive: true
+    city: '',
+    state: '',
+    postalCode: '',
+    country: '',
+    isActive: true,
+    contacts: [] as ContactInfo[]
   });
 
   useEffect(() => {
@@ -32,12 +38,21 @@ export default function EditCustomerPage() {
         
         if (data) {
           setCustomer(data);
+          // Extract phone contact if it exists
+          const phoneContact = data.contacts?.find(c => c.type === 'phone');
+
           setFormData({
-            name: data.name || '',
+            firstName: data.firstName || '',
+            lastName: data.lastName || '',
+            fullName: data.fullName || '',
             email: data.email || '',
-            phone: data.phone || '',
             address: data.address || '',
-            isActive: data.isActive !== false // Default to true if not specified
+            city: data.city || '',
+            state: data.state || '',
+            postalCode: data.postalCode || '',
+            country: data.country || '',
+            isActive: data.isActive !== false, // Default to true if not specified
+            contacts: data.contacts || []
           });
         } else {
           setError('Customer not found');
@@ -55,7 +70,7 @@ export default function EditCustomerPage() {
     }
   }, [customerId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
     
     setFormData(prev => ({
@@ -69,7 +84,47 @@ export default function EditCustomerPage() {
     
     try {
       setSaving(true);
-      const result = await CustomerAPI.updateCustomer(customerId, formData);
+      
+      // Create a copy of the form data to work with
+      const updatedCustomer = {...formData};
+      
+      // Ensure we have a full name - generate it from first and last name if needed
+      if (!updatedCustomer.fullName && (updatedCustomer.firstName || updatedCustomer.lastName)) {
+        updatedCustomer.fullName = `${updatedCustomer.firstName || ''} ${updatedCustomer.lastName || ''}`.trim();
+      }
+      
+      // Make sure we have at least one primary contact if there are contacts
+      if (updatedCustomer.contacts && updatedCustomer.contacts.length > 0) {
+        if (!updatedCustomer.contacts.some(c => c.isPrimary)) {
+          // Set the first contact as primary if none are marked
+          updatedCustomer.contacts[0].isPrimary = true;
+        }
+        
+        // Ensure all contacts have their values trimmed
+        updatedCustomer.contacts = updatedCustomer.contacts.map(contact => ({
+          ...contact,
+          value: contact.value.trim()
+        }));
+      }
+      
+      // Make sure email is consistent in both places (direct field and in contacts array)
+      if (updatedCustomer.email) {
+        // Check if we have an email contact
+        const hasEmailContact = updatedCustomer.contacts?.some(c => c.type === ContactType.EMAIL);
+        
+        if (!hasEmailContact && updatedCustomer.email) {
+          // Add the email to contacts array if it doesn't exist there
+          const emailContact: ContactInfo = {
+            type: ContactType.EMAIL,
+            value: updatedCustomer.email,
+            isPrimary: !(updatedCustomer.contacts?.some(c => c.isPrimary))
+          };
+          updatedCustomer.contacts = [...(updatedCustomer.contacts || []), emailContact];
+        }
+      }
+      
+      // Update the customer
+      const result = await CustomerAPI.updateCustomer(customerId, updatedCustomer);
       
       if (result) {
         // Navigate back to customer detail page
@@ -132,17 +187,44 @@ export default function EditCustomerPage() {
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  name="firstName"
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  name="lastName"
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
                   Full Name or Company
                 </label>
                 <input
                   type="text"
-                  name="name"
-                  id="name"
-                  value={formData.name}
+                  name="fullName"
+                  id="fullName"
+                  value={formData.fullName}
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
-                  required
                 />
               </div>
 
@@ -161,18 +243,97 @@ export default function EditCustomerPage() {
                 />
               </div>
 
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                  Phone
+              {/* Display contact list */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Contact Methods
                 </label>
-                <input
-                  type="text"
-                  name="phone"
-                  id="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
-                />
+                
+                {formData.contacts && formData.contacts.length > 0 ? (
+                  <div className="space-y-3">
+                    {formData.contacts.map((contact, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <select
+                          value={contact.type}
+                          onChange={(e) => {
+                            const newContacts = [...formData.contacts!];
+                            newContacts[index] = {
+                              ...newContacts[index],
+                              type: e.target.value as ContactType
+                            };
+                            setFormData({...formData, contacts: newContacts});
+                          }}
+                          className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                        >
+                          {Object.values(ContactType).map(type => (
+                            <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
+                          ))}
+                        </select>
+                        <input
+                          type="text"
+                          value={contact.value}
+                          onChange={(e) => {
+                            const newContacts = [...formData.contacts!];
+                            newContacts[index] = {
+                              ...newContacts[index],
+                              value: e.target.value
+                            };
+                            setFormData({...formData, contacts: newContacts});
+                          }}
+                          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                          placeholder={`Enter ${contact.type}`}
+                        />
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={contact.isPrimary === true}
+                            onChange={(e) => {
+                              // Set this contact as primary and others as not primary
+                              const newContacts = formData.contacts!.map((c, i) => ({
+                                ...c,
+                                isPrimary: i === index ? e.target.checked : false
+                              }));
+                              setFormData({...formData, contacts: newContacts});
+                            }}
+                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-1"
+                          />
+                          <span className="text-xs text-gray-500 mr-2">Primary</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newContacts = formData.contacts!.filter((_, i) => i !== index);
+                            setFormData({...formData, contacts: newContacts});
+                          }}
+                          className="p-1 text-red-500 hover:text-red-700"
+                        >
+                          <FiTrash size={18} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 italic">No contact methods added.</p>
+                )}
+                
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Add a new contact with default phone type
+                    const newContact: ContactInfo = {
+                      type: ContactType.PHONE,
+                      value: '',
+                      isPrimary: formData.contacts?.length === 0
+                    };
+                    setFormData({
+                      ...formData,
+                      contacts: [...(formData.contacts || []), newContact]
+                    });
+                  }}
+                  className="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200"
+                >
+                  <FiPlus className="mr-1" /> Add Contact Method
+                </button>
               </div>
 
               <div>

@@ -78,6 +78,14 @@ export default function ItemList() {
     setShowFormModal(false);
   };
 
+  const handleDeleteItem = (itemId) => {
+    if (confirm('Are you sure you want to delete this item?')) {
+      // In a real app, you'd make an API call to delete the item
+      // For this demo, we'll just update the local state
+      setItems(items.filter(item => item.id !== itemId));
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -160,15 +168,19 @@ export default function ItemList() {
                 </span>
               </div>
               <h2 className={styles.itemName}>{item.name}</h2>
-              <p className={styles.itemPrice}>
-                {item.total_price} {item.currency}
-              </p>
+              {item.total_price && item.currency && (
+                <p className={styles.itemPrice}>
+                  {item.total_price} {item.currency}
+                </p>
+              )}
               <p className={styles.itemVendor}>
-                Vendor: {item.vendor.name}
+                Vendor: {item.vendor && item.vendor.name ? item.vendor.name : 'N/A'}
               </p>
-              <p className={styles.itemEvent}>
-                Event: {item.event.name}
-              </p>
+              {item.event && (
+                <p className={styles.itemEvent}>
+                  Event: {item.event.name || 'N/A'}
+                </p>
+              )}
               <div className={styles.itemActions}>
                 <button onClick={() => handleEditItem(item.id)} className={styles.editButton}>
                   Edit
@@ -176,6 +188,13 @@ export default function ItemList() {
                 <Link href={`/items/${item.id}`} className={styles.viewButton}>
                   View
                 </Link>
+                <button 
+                  onClick={() => handleDeleteItem(item.id)} 
+                  className={styles.deleteButton}
+                  aria-label="Delete item"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))

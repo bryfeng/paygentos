@@ -130,6 +130,16 @@
   cursor: pointer;
 }
 
+.ItemList_deleteButton__S8m8V {
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
 .ItemList_loadingContainer__v_nyj {
   display: flex;
   justify-content: center;

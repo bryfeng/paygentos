@@ -7,7 +7,8 @@ export const metadata = {
   description: 'Manage customer profiles',
 };
 
-export default function CustomerProfilesPage({ params }: { params: { id: string } }) {
+// Server Component with simpler type handling
+export default function CustomerProfilesPage({ params }: any) {
   return (
     <div className="container mx-auto px-4 py-8">
       <Suspense fallback={<PageLoading />}>

@@ -96,15 +96,24 @@ export const validateCustomer = (customer: Partial<Customer>): string[] => {
     errors.push('Last name is required');
   }
   
-  // Check if at least one contact method exists
+  // Validate the direct email field first (new approach)
+  if (!customer.email) {
+    errors.push('Email address is required');
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) {
+    errors.push('Email format is invalid');
+  }
+  
+  // For backwards compatibility, check contacts if needed
   if (!customer.contacts || customer.contacts.length === 0) {
-    errors.push('At least one contact method is required');
+    // This is ok if we have a direct email field
+    if (!customer.email) {
+      errors.push('At least one contact method is required');
+    }
   } else {
-    // Validate that the primary contact information is properly formatted
+    // Validate that the primary contact information is properly formatted if present
     const primaryContact = customer.contacts.find(c => c.isPrimary);
-    if (!primaryContact) {
-      errors.push('At least one contact method must be marked as primary');
-    } else if (primaryContact.type === ContactType.EMAIL && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(primaryContact.value)) {
+    if (primaryContact && primaryContact.type === ContactType.EMAIL && 
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(primaryContact.value)) {
       errors.push('Primary email format is invalid');
     }
   }

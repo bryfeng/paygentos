@@ -118,14 +118,37 @@ const CustomerList = () => {
         {customers.map((customer) => (
           <Card key={customer.id} hoverable>
             <div className="p-4">
-              <h3 className="text-lg font-semibold mb-2">{customer.name}</h3>
+              {/* Display full name if available, otherwise use firstName + lastName */}
+              <h3 className="text-lg font-semibold mb-2">
+                {customer.fullName || `${customer.firstName} ${customer.lastName}`}
+              </h3>
+              
+              {/* Email is now a direct field */}
               <p className="text-gray-600 mb-1">Email: {customer.email}</p>
-              {customer.phone && (
-                <p className="text-gray-600 mb-1">Phone: {customer.phone}</p>
+              
+              {/* Show primary phone from contacts array if available */}
+              {customer.contacts?.some(c => c.type === 'phone') && (
+                <p className="text-gray-600 mb-1">
+                  Phone: {customer.contacts.find(c => c.type === 'phone')?.value}
+                </p>
               )}
+              
+              {/* Show address details if available */}
               {customer.address && (
-                <p className="text-gray-600 mb-3">Address: {customer.address}</p>
+                <p className="text-gray-600 mb-1">
+                  Address: {[customer.address, customer.city, customer.state, customer.postalCode, customer.country]
+                    .filter(Boolean)
+                    .join(', ')}
+                </p>
               )}
+              
+              {/* Show number of additional contacts if there are more than 2 */}
+              {customer.contacts && customer.contacts.length > 1 && (
+                <p className="text-gray-600 mb-3 text-sm">
+                  + {customer.contacts.length - 1} additional contact method(s)
+                </p>
+              )}
+              
               <div className="flex justify-end space-x-2 mt-4">
                 <Link 
                   href={`/customers/${customer.id}`}

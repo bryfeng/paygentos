@@ -20,12 +20,8 @@ export default function ItemForm({ id, onClose, onSave }: ItemFormProps) {
     name: '',
     description: '',
     type: '',
-    quantity: 1,
-    unit_price: '',
-    currency: 'USD',
     vendor_id: '',
     vendor_name: '',
-    event_id: '',
     // Additional fields based on item type would be conditionally rendered
   });
   
@@ -42,12 +38,8 @@ export default function ItemForm({ id, onClose, onSave }: ItemFormProps) {
           name: 'Flight to New York',
           description: 'Round trip flight to NYC for business conference',
           type: 'flight',
-          quantity: 1,
-          unit_price: '450.00',
-          currency: 'USD',
           vendor_id: '123',
           vendor_name: 'Delta Airlines',
-          event_id: '456',
         });
         setLoading(false);
       }, 500);
@@ -226,59 +218,7 @@ export default function ItemForm({ id, onClose, onSave }: ItemFormProps) {
               </div>
             </div>
             
-            <div className={styles.formSection}>
-              <h3 className={styles.sectionTitle}>Pricing</h3>
-              <div className={styles.formGrid}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel} htmlFor="quantity">
-                    Quantity
-                  </label>
-                  <input
-                    id="quantity"
-                    name="quantity"
-                    type="number"
-                    min="1"
-                    value={formData.quantity}
-                    onChange={handleChange}
-                    className={styles.formInput}
-                  />
-                </div>
-                
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel} htmlFor="unit_price">
-                    Unit Price
-                  </label>
-                  <input
-                    id="unit_price"
-                    name="unit_price"
-                    type="text"
-                    value={formData.unit_price}
-                    onChange={handleChange}
-                    className={styles.formInput}
-                    placeholder="0.00"
-                  />
-                </div>
-                
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel} htmlFor="currency">
-                    Currency
-                  </label>
-                  <select
-                    id="currency"
-                    name="currency"
-                    value={formData.currency}
-                    onChange={handleChange}
-                    className={styles.formInput}
-                  >
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="GBP">GBP</option>
-                    <option value="JPY">JPY</option>
-                    {/* Add more currencies */}
-                  </select>
-                </div>
-              </div>
-            </div>
+            {/* Pricing section removed - will be added when items are purchased */}
             
             <div className={styles.formSection}>
               <h3 className={styles.sectionTitle}>Vendor Information</h3>
@@ -302,28 +242,7 @@ export default function ItemForm({ id, onClose, onSave }: ItemFormProps) {
               </div>
             </div>
             
-            <div className={styles.formSection}>
-              <h3 className={styles.sectionTitle}>Event Association</h3>
-              <div className={styles.formGrid}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel} htmlFor="event_id">
-                    Associated Event
-                  </label>
-                  <select
-                    id="event_id"
-                    name="event_id"
-                    value={formData.event_id}
-                    onChange={handleChange}
-                    className={styles.formInput}
-                  >
-                    <option value="">Select an event</option>
-                    <option value="456">Business Conference</option>
-                    <option value="789">Client Meeting</option>
-                    {/* This would be populated from actual events */}
-                  </select>
-                </div>
-              </div>
-            </div>
+            {/* Event Association section removed - items will be associated with events when purchased */}
             
             {formData.type && renderTypeSpecificFields()}
           </div>

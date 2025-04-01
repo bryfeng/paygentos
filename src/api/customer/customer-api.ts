@@ -11,276 +11,140 @@ import { supabase, safeQuery } from '../../utils/supabase';
 // Table name in Supabase
 const CUSTOMER_TABLE = 'customers';
 
-// Mock data for development/fallback - now focused on individuals
-const MOCK_CUSTOMERS: Customer[] = [
-  {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Smith',
-    fullName: 'John Smith',
-    dob: '1985-06-15',
-    address: '123 Main St',
-    city: 'San Francisco',
-    state: 'CA',
-    postalCode: '94105',
-    country: 'USA',
-    contacts: [
-      { 
-        type: ContactType.EMAIL, 
-        value: 'john.smith@example.com', 
-        isPrimary: true, 
-        label: 'Personal' 
-      },
-      { 
-        type: ContactType.PHONE, 
-        value: '555-123-4567', 
-        isPrimary: false, 
-        label: 'Mobile' 
-      },
-      { 
-        type: ContactType.TELEGRAM, 
-        value: '@johnsmith', 
-        isPrimary: false, 
-        label: 'Telegram' 
-      }
-    ],
-    preferredContactType: ContactType.EMAIL,
-    idDocuments: [
-      {
-        type: IdDocumentType.DRIVERS_LICENSE,
-        number: 'DL12345678',
-        issuedBy: 'CA DMV',
-        issuedDate: '2020-01-15',
-        expiryDate: '2028-01-15',
-        isVerified: true
-      }
-    ],
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    notes: 'Prefers to be contacted during evenings.'
-  },
-  {
-    id: '2',
-    firstName: 'Emily',
-    lastName: 'Johnson',
-    fullName: 'Emily Johnson',
-    dob: '1990-08-22',
-    address: '456 Oak Avenue',
-    city: 'New York',
-    state: 'NY',
-    postalCode: '10001',
-    country: 'USA',
-    contacts: [
-      { 
-        type: ContactType.EMAIL, 
-        value: 'emily.j@example.com', 
-        isPrimary: true, 
-        label: 'Work' 
-      },
-      { 
-        type: ContactType.PHONE, 
-        value: '555-987-6543', 
-        isPrimary: false, 
-        label: 'Home' 
-      },
-      { 
-        type: ContactType.DISCORD, 
-        value: 'emilyjohnson#1234', 
-        isPrimary: false, 
-        label: 'Discord' 
-      }
-    ],
-    preferredContactType: ContactType.DISCORD,
-    idDocuments: [
-      {
-        type: IdDocumentType.PASSPORT,
-        number: 'P12345678',
-        issuedBy: 'U.S. Department of State',
-        issuedDate: '2018-05-20',
-        expiryDate: '2028-05-19',
-        isVerified: true
-      }
-    ],
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    notes: 'Prefers Discord for quick communications.'
-  },
-  {
-    id: '3',
-    firstName: 'Miguel',
-    lastName: 'Garcia',
-    fullName: 'Miguel Garcia',
-    dob: '1978-11-30',
-    address: '789 Pine Street',
-    city: 'Miami',
-    state: 'FL',
-    postalCode: '33101',
-    country: 'USA',
-    contacts: [
-      { 
-        type: ContactType.EMAIL, 
-        value: 'miguel.g@example.com', 
-        isPrimary: false, 
-        label: 'Personal' 
-      },
-      { 
-        type: ContactType.PHONE, 
-        value: '555-456-7890', 
-        isPrimary: true, 
-        label: 'Mobile' 
-      },
-      { 
-        type: ContactType.WHATSAPP, 
-        value: '+1-555-456-7890', 
-        isPrimary: false, 
-        label: 'WhatsApp' 
-      }
-    ],
-    preferredContactType: ContactType.PHONE,
-    idDocuments: [
-      {
-        type: IdDocumentType.NATIONAL_ID,
-        number: 'ID98765432',
-        issuedBy: 'Florida Department of Safety',
-        issuedDate: '2019-12-10',
-        expiryDate: '2029-12-09',
-        isVerified: true
-      }
-    ],
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    notes: 'Prefers phone calls over other communication methods.'
+// Helper function to convert snake_case to camelCase (for API responses)
+function toCamelCase(obj: any): any {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
   }
-];
+  
+  if (Array.isArray(obj)) {
+    return obj.map(toCamelCase);
+  }
+  
+  return Object.keys(obj).reduce((result, key) => {
+    // Convert snake_case to camelCase
+    const camelKey = key.replace(/(_[a-z])/g, (group) => group.toUpperCase().replace('_', ''));
+    
+    // Recursively convert nested objects/arrays
+    const value = typeof obj[key] === 'object' ? toCamelCase(obj[key]) : obj[key];
+    
+    result[camelKey] = value;
+    return result;
+  }, {} as any);
+}
+
+// Helper function to convert camelCase to snake_case (for database operations)
+function toSnakeCase(obj: any): any {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(toSnakeCase);
+  }
+  
+  return Object.keys(obj).reduce((result, key) => {
+    // Convert camelCase to snake_case
+    const snakeKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+    
+    // Recursively convert nested objects/arrays
+    const value = typeof obj[key] === 'object' ? toSnakeCase(obj[key]) : obj[key];
+    
+    result[snakeKey] = value;
+    return result;
+  }, {} as any);
+}
 
 export const CustomerAPI = {
-  // Get all customers with fallback to mock data only if database fails
+  // Get all customers from the database
   getCustomers: async (): Promise<Customer[]> => {
     try {
       console.log('Fetching customers from database...');
       
+      // Use created_at (snake_case) for the database query
       const { data, error } = await supabase
         .from(CUSTOMER_TABLE)
         .select('*')
-        .order('createdAt', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) {
-        console.warn('Error fetching customers from Supabase:', error.message);
-        console.info('Using mock customer data as fallback');
-        return MOCK_CUSTOMERS;
+        console.error('Error fetching customers from Supabase:', error.message);
+        throw new Error(`Failed to fetch customers: ${error.message}`);
       }
 
       // Return actual database results, even if empty array
-      // This ensures new customers added through admin panel will be shown
       console.log(`Retrieved ${data?.length || 0} customers from database`);
-      return data as Customer[] || [];
+      
+      // Convert snake_case properties to camelCase
+      return (data || []).map(customer => toCamelCase(customer)) as Customer[];
     } catch (error) {
       console.error('Error in getCustomers:', error);
-      return MOCK_CUSTOMERS; // Fallback to mock data in case of error
+      throw error; // Re-throw to let component handle the error
     }
   },
 
-  // Get customer by ID from database (fallback to mock data only if error)
+  // Get customer by ID from database
   getCustomer: async (id: string): Promise<Customer | null> => {
     try {
       console.log(`Fetching customer ${id} from database...`);
       
-      // Convert string ID to UUID format for database if needed
-      let queryId = id;
-      if (id.length === 1) {
-        // This handles the case of mock data IDs ('1', '2', '3')
-        // being used before migration to database
-        queryId = `00000000-0000-0000-0000-00000000000${id}`;
-        console.log(`Converting simple ID ${id} to UUID format: ${queryId}`);
-      }
-      
       const { data, error } = await supabase
         .from(CUSTOMER_TABLE)
         .select('*')
-        .eq('id', queryId)
+        .eq('id', id)
         .single();
 
       if (error) {
         console.warn(`Error fetching customer ${id}:`, error.message);
-        // Only try to find in mock data if database query failed
-        const mockCustomer = MOCK_CUSTOMERS.find(c => c.id === id);
-        if (mockCustomer) {
-          console.log(`Found customer ${id} in mock data`);
-          return mockCustomer;
+        if (error.code === 'PGRST116') { // record not found
+          return null;
         }
-        return null;
+        throw new Error(`Failed to fetch customer: ${error.message}`);
       }
 
       console.log(`Successfully retrieved customer ${id} from database`);
-      return data as Customer;
+      // Convert snake_case properties to camelCase
+      return toCamelCase(data) as Customer;
     } catch (error) {
-      console.error(`Error in getCustomer ${id}:`, error);
-      // Last resort fallback to mock data
-      const mockCustomer = MOCK_CUSTOMERS.find(c => c.id === id);
-      return mockCustomer || null;
+      console.error(`Error in getCustomer(${id}):`, error);
+      throw error; // Re-throw to let component handle the error
     }
   },
 
   // Create new customer
   createCustomer: async (customer: Partial<Customer>): Promise<Customer | null> => {
     try {
-      // Add timestamps
-      const now = new Date().toISOString();
-      
-      // Generate full name if not provided
-      let fullName = customer.fullName;
-      if (!fullName && customer.firstName && customer.lastName) {
-        fullName = `${customer.firstName} ${customer.lastName}`;
-      }
-      
-      // Ensure contacts and idDocuments are arrays
-      const contacts = customer.contacts || [];
-      const idDocuments = customer.idDocuments || [];
-      
-      // Make sure at least one contact is marked as primary
-      if (contacts.length > 0 && !contacts.some(c => c.isPrimary)) {
-        contacts[0].isPrimary = true;
-      }
-      
-      const newCustomer = {
-        ...customer,
-        fullName,
-        contacts,
-        idDocuments,
-        createdAt: now,
-        updatedAt: now
-      };
-
       // Find primary contact for logging
-      const primaryContact = contacts.find(c => c.isPrimary);
+      const primaryContact = customer.contacts?.find(c => c.isPrimary);
       const contactInfo = primaryContact ? `${primaryContact.type}: ${primaryContact.value}` : 'No primary contact';
       
-      console.log('Creating new customer in database:', { 
-        name: fullName,
+      console.log('Creating new customer via API route:', { 
+        name: customer.fullName || `${customer.firstName} ${customer.lastName}`,
         contact: contactInfo,
-        document_count: idDocuments.length
+        document_count: customer.idDocuments?.length || 0
       });
       
-      const { data, error } = await supabase
-        .from(CUSTOMER_TABLE)
-        .insert([newCustomer])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error creating customer:', error.message);
-        if (error.code === '23505') { // Unique constraint violation
-          throw new Error('A customer with this profile already exists');
-        }
-        throw error;
+      // Call our Next.js API route instead of Supabase directly
+      // This avoids CORS issues since the API route runs server-side
+      const response = await fetch('/api/customers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(customer),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error response from API:', errorData);
+        throw new Error(errorData.error || 'Failed to create customer');
       }
 
+      const data = await response.json();
       console.log('Successfully created customer with ID:', data.id);
+      // The API route already converts the response to camelCase
       return data as Customer;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error in createCustomer:', error);
       throw error; // Re-throw to allow proper error handling in UI
     }
@@ -346,9 +210,12 @@ export const CustomerAPI = {
         document_count: idDocuments.length
       });
 
+      // Convert to snake_case for database
+      const dbCustomer = toSnakeCase(updatedCustomer);
+
       const { data, error } = await supabase
         .from(CUSTOMER_TABLE)
-        .update(updatedCustomer)
+        .update(dbCustomer)
         .eq('id', id)
         .select()
         .single();
@@ -359,7 +226,8 @@ export const CustomerAPI = {
       }
 
       console.log(`Successfully updated customer ${id}`);
-      return data as Customer;
+      // Convert back to camelCase for the application
+      return toCamelCase(data) as Customer;
     } catch (error) {
       console.error(`Error in updateCustomer ${id}:`, error);
       throw error; // Re-throw to allow proper error handling in UI

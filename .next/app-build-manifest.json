@@ -6,40 +6,30 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/page": [
+    "/customers/new/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/customers/new/page.js"
     ],
-    "/customers/page": [
+    "/api/customers/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/customers/page.js"
-    ],
-    "/events/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/events/page.js"
-    ],
-    "/payment-methods/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/payment-methods/page.js"
-    ],
-    "/dashboard/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/page.js"
+      "static/chunks/app/api/customers/route.js"
     ],
     "/customers/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/customers/[id]/page.js"
     ],
-    "/agent-applications/travel-agent/page": [
+    "/customers/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/agent-applications/travel-agent/page.js"
+      "static/chunks/app/customers/page.js"
+    ],
+    "/customers/[id]/edit/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/customers/[id]/edit/page.js"
     ],
     "/items/page": [
       "static/chunks/webpack.js",
@@ -47,22 +37,51 @@
       "static/css/app/items/page.css",
       "static/chunks/app/items/page.js"
     ],
-    "/items/[id]/page": [
+    "/events/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/items/[id]/page.css",
-      "static/chunks/app/items/[id]/page.js"
+      "static/chunks/app/events/page.js"
     ],
-    "/items/new/page": [
+    "/events/new/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/items/new/page.css",
-      "static/chunks/app/items/new/page.js"
+      "static/chunks/app/events/new/page.js"
     ],
-    "/customers/new/page": [
+    "/api/events/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/customers/new/page.js"
+      "static/chunks/app/api/events/route.js"
+    ],
+    "/events/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/events/[id]/page.js"
+    ],
+    "/api/events/[id]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/events/[id]/route.js"
+    ],
+    "/vendors/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/vendors/page.js"
+    ],
+    "/dashboard/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/page.js"
+    ],
+    "/vendors/new/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/vendors/new/page.css",
+      "static/chunks/app/vendors/new/page.js"
+    ],
+    "/api/vendors/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/vendors/route.js"
     ]
   }
 }

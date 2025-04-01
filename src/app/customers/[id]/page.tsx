@@ -80,7 +80,7 @@ export default function CustomerDetailPage() {
         <div className="bg-blue-700 text-white p-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-2xl font-bold">{customer.name}</h1>
+              <h1 className="text-2xl font-bold">{customer.fullName || `${customer.firstName} ${customer.lastName}`}</h1>
               <p className="text-blue-100 mt-1">Customer ID: {customer.id}</p>
             </div>
             <div className="mt-4 md:mt-0 flex space-x-2">
@@ -113,22 +113,26 @@ export default function CustomerDetailPage() {
                 </div>
               </div>
               
-              {customer.phone && (
+              {customer.contacts?.some(c => c.type === 'phone') && (
                 <div className="flex items-start">
                   <FiPhone className="mt-1 text-gray-400 mr-3" />
                   <div>
                     <p className="text-sm font-medium text-gray-500">Phone</p>
-                    <p className="text-gray-900">{customer.phone}</p>
+                    <p className="text-gray-900">{customer.contacts.find(c => c.type === 'phone')?.value}</p>
                   </div>
                 </div>
               )}
               
-              {customer.address && (
+              {(customer.address || customer.city || customer.state || customer.postalCode) && (
                 <div className="flex items-start">
                   <FiMapPin className="mt-1 text-gray-400 mr-3" />
                   <div>
                     <p className="text-sm font-medium text-gray-500">Address</p>
-                    <p className="text-gray-900">{customer.address}</p>
+                    <p className="text-gray-900">
+                      {[customer.address, customer.city, customer.state, customer.postalCode, customer.country]
+                        .filter(Boolean)
+                        .join(', ')}
+                    </p>
                   </div>
                 </div>
               )}
@@ -136,6 +140,25 @@ export default function CustomerDetailPage() {
             
             <div className="space-y-4">
               <h2 className="text-lg font-medium text-gray-900 border-b pb-2">Account Information</h2>
+              
+              {customer.contacts && customer.contacts.length > 0 && (
+                <div className="flex items-start">
+                  <FiUser className="mt-1 text-gray-400 mr-3" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Additional Contacts</p>
+                    <div className="space-y-2 mt-1">
+                      {customer.contacts.map((contact, index) => (
+                        <p key={index} className="text-gray-900">
+                          {contact.type}: {contact.value}
+                          {contact.isPrimary && (
+                            <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">Primary</span>
+                          )}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
               
               <div className="flex items-start">
                 <FiCalendar className="mt-1 text-gray-400 mr-3" />

@@ -29,8 +29,10 @@ export default function NewCustomerPage() {
     state: '',
     postalCode: '',
     country: '',
-    // Contact information
-    contacts: [{ type: ContactType.EMAIL, value: '', isPrimary: true, label: 'Primary Email' }],
+    // Direct email field (required)
+    email: '',
+    // Other contact information
+    contacts: [],
     preferredContactType: ContactType.EMAIL,
     // ID Documents
     idDocuments: [],
@@ -41,7 +43,7 @@ export default function NewCustomerPage() {
   
   // For managing contact methods
   const [newContact, setNewContact] = useState({
-    type: ContactType.PHONE,
+    type: ContactType.PHONE, // Default to phone since email is handled separately
     value: '',
     label: '',
     isPrimary: false
@@ -102,6 +104,12 @@ export default function NewCustomerPage() {
   // Add a new contact method
   const addContact = () => {
     if (!newContact.value) return;
+    
+    // Prevent adding EMAIL type contacts (should use the dedicated email field)
+    if (newContact.type === ContactType.EMAIL) {
+      alert('Please use the dedicated Email field at the top of the form');
+      return;
+    }
     
     // If this is marked as primary, remove primary from other contacts
     let updatedContacts = [...formData.contacts];
@@ -174,7 +182,13 @@ export default function NewCustomerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate the customer data
+    // Ensure email is valid
+    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setValidationErrors(['A valid email address is required']);
+      return;
+    }
+    
+    // Validate the rest of the customer data
     const errors = validateCustomer(formData);
     if (errors.length > 0) {
       setValidationErrors(errors);
@@ -185,13 +199,29 @@ export default function NewCustomerPage() {
       setSaving(true);
       setValidationErrors([]);
       
+      // Create a primary email contact from the direct email field
+      const emailContact = {
+        type: ContactType.EMAIL,
+        value: formData.email,
+        isPrimary: true,
+        label: 'Primary Email'
+      };
+      
+      // Make sure no existing email contacts conflict with our primary one
+      const nonEmailContacts = formData.contacts.filter(c => c.type !== ContactType.EMAIL);
+      
       // Prepare final data for submission
       const customerData = {
         ...formData,
+        // Make sure the email is in both places - as a direct field and in contacts array
+        // This satisfies both the UI model and the database constraint
+        email: formData.email,
+        contacts: [emailContact, ...nonEmailContacts],
         // If no ID documents were added, ensure it's at least an empty array
         idDocuments: formData.idDocuments || []
       };
       
+      console.log('Submitting customer data:', JSON.stringify(customerData, null, 2));
       const result = await CustomerAPI.createCustomer(customerData);
       
       if (result) {
@@ -295,6 +325,23 @@ export default function NewCustomerPage() {
                 />
               </div>
               
+              <div className="col-span-1 sm:col-span-2">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Email Address <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="customer@example.com"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                  required
+                />
+                <p className="mt-1 text-xs text-gray-500">This email will be used as the customer's primary contact</p>
+              </div>
+              
               <div>
                 <label htmlFor="dob" className="block text-sm font-medium text-gray-700">
                   Date of Birth
@@ -306,9 +353,18 @@ export default function NewCustomerPage() {
                     id="dob"
                     value={formData.dob}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2 pr-10"
                   />
-                  <FiCalendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      const dateInput = document.getElementById('dob') as HTMLInputElement;
+                      if (dateInput) dateInput.showPicker();
+                    }}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  >
+                    <FiCalendar />
+                  </button>
                 </div>
               </div>
               
@@ -333,7 +389,9 @@ export default function NewCustomerPage() {
             {/* Existing Contacts */}
             {formData.contacts.length > 0 && (
               <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Current Contact Methods</h4>
+                <h4 className="text-sm font-medium text-gray-700 mb-2">
+                  Additional Contact Methods
+                </h4>
                 <div className="space-y-2">
                   {formData.contacts.map((contact, index) => (
                     <div key={index} className="flex items-center space-x-2 p-2 bg-gray-50 rounded">
@@ -344,13 +402,24 @@ export default function NewCustomerPage() {
                             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">Primary</span>
                           )}
                           {contact.label && <span className="text-xs text-gray-500 ml-2">({contact.label})</span>}
+                          {/* Show required indicator for email */}
+                          {contact.type === ContactType.EMAIL && (
+                            <span className="text-xs text-red-500 ml-2">*required</span>
+                          )}
                         </div>
                         <div className="text-sm text-gray-600">{contact.value}</div>
                       </div>
                       <button 
                         type="button" 
                         onClick={() => removeContact(index)}
-                        className="text-red-500 hover:text-red-700"
+                        disabled={contact.type === ContactType.EMAIL && 
+                          formData.contacts.filter(c => c.type === ContactType.EMAIL).length <= 1}
+                        className={`${contact.type === ContactType.EMAIL && 
+                          formData.contacts.filter(c => c.type === ContactType.EMAIL).length <= 1 ? 
+                          'text-gray-400 cursor-not-allowed' : 'text-red-500 hover:text-red-700'}`}
+                        title={contact.type === ContactType.EMAIL && 
+                          formData.contacts.filter(c => c.type === ContactType.EMAIL).length <= 1 ? 
+                          'At least one email is required' : 'Remove contact'}
                       >
                         <FiTrash2 />
                       </button>
@@ -362,11 +431,12 @@ export default function NewCustomerPage() {
             
             {/* Add New Contact Form */}
             <div className="mt-4 p-4 bg-gray-50 rounded">
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Add Contact Method</h4>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Add Additional Contact Method</h4>
+              <p className="text-xs text-gray-500 mb-2">Use this section to add phone numbers and other contact methods. Email is handled in the main section above.</p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
                   <label htmlFor="contactType" className="block text-xs font-medium text-gray-700">
-                    Type
+                    Type {newContact.type === ContactType.EMAIL && <span className="text-red-500">*</span>}
                   </label>
                   <select
                     name="type"
@@ -375,7 +445,7 @@ export default function NewCustomerPage() {
                     onChange={handleContactChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs border p-2"
                   >
-                    {Object.values(ContactType).map(type => (
+                    {Object.values(ContactType).filter(type => type !== ContactType.EMAIL).map(type => (
                       <option key={type} value={type}>{type}</option>
                     ))}
                   </select>
@@ -383,7 +453,7 @@ export default function NewCustomerPage() {
                 
                 <div>
                   <label htmlFor="contactValue" className="block text-xs font-medium text-gray-700">
-                    Value
+                    Value {newContact.type === ContactType.EMAIL && <span className="text-red-500">*</span>}
                   </label>
                   <input
                     type={newContact.type === ContactType.EMAIL ? 'email' : 'text'}

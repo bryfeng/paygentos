@@ -8,7 +8,7 @@ export interface Event {
   location?: string;
   purpose?: string;
   requiresApproval: boolean;
-  approvalStatus?: 'pending' | 'approved' | 'rejected';
+  approvalStatus?: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
   approvedBy?: string;
   approvedAt?: Date;
   budget?: {
@@ -16,7 +16,7 @@ export interface Event {
     currency: string;
     remaining?: number;
   };
-  customerId: string;
+  customerIds: string[];
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -28,7 +28,7 @@ export interface Event {
 // Default values for new event
 export const defaultEvent: Partial<Event> = {
   requiresApproval: true,
-  approvalStatus: 'pending',
+  approvalStatus: 'scheduled',
   isActive: true,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -46,8 +46,8 @@ export const validateEvent = (event: Partial<Event>): string[] => {
     errors.push('Start date is required');
   }
   
-  if (!event.customerId) {
-    errors.push('Customer ID is required');
+  if (!event.customerIds || event.customerIds.length === 0) {
+    errors.push('At least one customer is required');
   }
   
   if (event.endDate && event.startDate && new Date(event.endDate) < new Date(event.startDate)) {

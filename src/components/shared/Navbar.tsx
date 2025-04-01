@@ -23,11 +23,11 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { href: '/', label: 'Home', icon: <FiHome className="h-5 w-5" /> },
     { href: '/dashboard', label: 'Dashboard', icon: <FiPieChart className="h-5 w-5" /> },
     { href: '/customers', label: 'Customers', icon: <FiUsers className="h-5 w-5" /> },
     { href: '/events', label: 'Events', icon: <FiCalendar className="h-5 w-5" /> },
     { href: '/items', label: 'Items', icon: <FiBox className="h-5 w-5" /> },
+    { href: '/vendors', label: 'Vendors', icon: <FiUsers className="h-5 w-5" /> },
     { href: '/payment-methods', label: 'Payment Methods', icon: <FiCreditCard className="h-5 w-5" /> },
     { href: '/agent-applications/travel-agent', label: 'Travel Agent', icon: <FiMap className="h-5 w-5" /> },
   ];
