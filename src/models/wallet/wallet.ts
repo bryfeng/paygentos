@@ -41,14 +41,17 @@ export interface PaymentMethod {
   isDefault: boolean;
   details: {
     // Credit/Debit Card
-    cardNumber?: string; // Tokenized or masked
+    cardNumber?: string; // Raw card number (only used during form input, never stored)
+    maskedCardNumber?: string; // Masked version for display (e.g., •••• •••• •••• 1234)
+    maskedNumber?: string; // Alternative format for masking (for compatibility)
     cardholderName?: string;
     expiryMonth?: number;
     expiryYear?: number;
     billingAddress?: Address;
     
     // Bank Account
-    accountNumber?: string; // Tokenized or masked
+    accountNumber?: string; // Raw account number (only used during form input, never stored)
+    maskedAccountNumber?: string; // Masked version for display (e.g., ••••5678)
     routingNumber?: string;
     accountType?: 'checking' | 'savings' | 'business';
     

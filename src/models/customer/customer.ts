@@ -68,6 +68,11 @@ export interface Customer {
   // Legacy fields (can be deprecated over time)
   email?: string;         // For backward compatibility
   phone?: string;         // For backward compatibility
+  // Organization information
+  company?: string;       // Company or organization name
+  role?: string;          // Role or job title
+  department?: string;    // Department within organization
+  group_id?: string;      // Customer group ID reference
   // For extensibility
   metadata?: {
     [key: string]: any;

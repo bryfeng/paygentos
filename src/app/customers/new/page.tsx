@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CustomerAPI } from '../../../api/customer/customer-api';
+import { CustomerGroup, CustomerGroupAPI } from '../../../api/customer/customer-group-api';
 import { 
   ContactType, 
   IdDocumentType, 
@@ -18,6 +19,8 @@ export default function NewCustomerPage() {
   
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [customerGroups, setCustomerGroups] = useState<CustomerGroup[]>([]);
+  const [loadingGroups, setLoadingGroups] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -38,7 +41,9 @@ export default function NewCustomerPage() {
     idDocuments: [],
     // Status
     isActive: true,
-    notes: ''
+    notes: '',
+    // Group assignment
+    group_id: ''
   });
   
   // For managing contact methods
@@ -60,6 +65,23 @@ export default function NewCustomerPage() {
   });
   
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  // Fetch customer groups when component mounts
+  useEffect(() => {
+    const fetchCustomerGroups = async () => {
+      setLoadingGroups(true);
+      try {
+        const groups = await CustomerGroupAPI.getCustomerGroups();
+        setCustomerGroups(groups);
+      } catch (error) {
+        console.error('Error fetching customer groups:', error);
+      } finally {
+        setLoadingGroups(false);
+      }
+    };
+
+    fetchCustomerGroups();
+  }, []);
 
   // Handle changes to basic form fields
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -380,6 +402,28 @@ export default function NewCustomerPage() {
                   />
                   <span className="text-sm font-medium text-gray-700">Active Customer</span>
                 </label>
+              </div>
+              
+              <div className="mt-4">
+                <label htmlFor="group_id" className="block text-sm font-medium text-gray-700">
+                  Customer Group
+                </label>
+                <select
+                  id="group_id"
+                  name="group_id"
+                  value={formData.group_id}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                  disabled={loadingGroups}
+                >
+                  <option value="">Select Group</option>
+                  {customerGroups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+                {loadingGroups && <p className="mt-1 text-xs text-gray-500">Loading groups...</p>}
               </div>
             </div>
           

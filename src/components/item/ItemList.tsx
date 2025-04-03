@@ -5,45 +5,83 @@ import Link from 'next/link';
 import { PlusIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import styles from '@/styles/components/ItemList.module.css';
 import ItemForm from './ItemForm';
+import { ItemAPI } from '@/api/item/item-api';
 
-// Mock data - replace with actual API calls
-const mockItems = [
-  {
-    id: '1',
-    name: 'Flight to New York',
-    type: 'flight',
-    status: 'purchased',
-    total_price: 450.00,
-    currency: 'USD',
-    vendor: { name: 'Delta Airlines' },
-    event: { name: 'Business Conference' },
-  },
-  {
-    id: '2',
-    name: 'Hotel Accommodation',
-    type: 'hotel',
-    status: 'reserved',
-    total_price: 780.00,
-    currency: 'USD',
-    vendor: { name: 'Marriott' },
-    event: { name: 'Business Conference' },
-  },
-];
+// Define interface for items from the database
+interface DatabaseItem {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string;
+  properties: any;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  group_id: string | null;
+}
+
+// Type conversion helper that maps API item to DatabaseItem
+function mapToDatabaseItems(items: any[]): DatabaseItem[] {
+  return items.map(item => ({
+    id: item.id || '',
+    name: item.name || '',
+    description: item.description || null,
+    category: item.category || item.type || 'general',
+    properties: item.properties || {},
+    status: item.status || 'active',
+    created_at: item.created_at || new Date().toISOString(),
+    updated_at: item.updated_at || new Date().toISOString(),
+    group_id: item.group_id || null
+  }));
+}
 
 export default function ItemList() {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<DatabaseItem[]>([]);
+  const [filteredItems, setFilteredItems] = useState<DatabaseItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  
+  // Filter states
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setItems(mockItems);
-      setLoading(false);
-    }, 500);
+    const fetchItems = async () => {
+      setLoading(true);
+      try {
+        const fetchedItems = await ItemAPI.getItems();
+        const dbItems = mapToDatabaseItems(fetchedItems);
+        setItems(dbItems);
+        setFilteredItems(dbItems);
+      } catch (err) {
+        console.error('Error fetching items:', err);
+        setError(err.message || 'Failed to load items');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchItems();
   }, []);
+  
+  // Apply filters when filter states change
+  useEffect(() => {
+    let result = [...items];
+    
+    // Apply category filter
+    if (categoryFilter) {
+      result = result.filter(item => item.category === categoryFilter);
+    }
+    
+    // Apply status filter
+    if (statusFilter) {
+      result = result.filter(item => item.status === statusFilter);
+    }
+    
+    setFilteredItems(result);
+  }, [items, categoryFilter, statusFilter]);
 
   const handleAddItem = () => {
     setSelectedItemId(null);
@@ -59,30 +97,41 @@ export default function ItemList() {
     setShowFormModal(false);
   };
 
-  const handleSaveItem = (itemData) => {
-    // In a real app, you'd make an API call to save the item
-    // For this demo, we'll just update the local state
-    if (selectedItemId) {
-      // Update existing item
-      setItems(items.map(item => 
-        item.id === selectedItemId ? { ...item, ...itemData } : item
-      ));
-    } else {
-      // Add new item
-      const newItem = {
-        id: Date.now().toString(),
-        ...itemData
-      };
-      setItems([...items, newItem]);
+  const handleSaveItem = async (itemData: any) => {
+    try {
+      if (selectedItemId) {
+        // Update existing item via API
+        const updatedItem = await ItemAPI.updateItem(selectedItemId, itemData);
+        // Convert to DatabaseItem type with proper mapping
+        const typedUpdatedItem = mapToDatabaseItems([updatedItem])[0];
+        setItems(items.map(item => 
+          item.id === selectedItemId ? typedUpdatedItem : item
+        ));
+      } else {
+        // Add new item via API
+        const newItem = await ItemAPI.createItem(itemData);
+        // Convert to DatabaseItem type with proper mapping
+        const typedNewItem = mapToDatabaseItems([newItem])[0];
+        setItems([...items, typedNewItem]);
+      }
+      setShowFormModal(false);
+    } catch (err: any) {
+      console.error('Error saving item:', err);
+      setError(err.message || 'Failed to save item');
     }
-    setShowFormModal(false);
   };
 
-  const handleDeleteItem = (itemId) => {
+  const handleDeleteItem = async (itemId: string) => {
     if (confirm('Are you sure you want to delete this item?')) {
-      // In a real app, you'd make an API call to delete the item
-      // For this demo, we'll just update the local state
-      setItems(items.filter(item => item.id !== itemId));
+      try {
+        // Delete item via API
+        await ItemAPI.deleteItem(itemId);
+        // Update state after successful deletion
+        setItems(items.filter(item => item.id !== itemId));
+      } catch (err: any) {
+        console.error('Error deleting item:', err);
+        setError(err.message || 'Failed to delete item');
+      }
     }
   };
 
@@ -131,21 +180,33 @@ export default function ItemList() {
       
       <div className={styles.filters}>
         <div className={styles.filterGroup}>
-          <label htmlFor="itemType">Item Type:</label>
-          <select id="itemType" className={styles.filterSelect}>
-            <option value="">All Types</option>
+          <label htmlFor="itemType">Item Category:</label>
+          <select 
+            id="itemType" 
+            className={styles.filterSelect}
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="">All Categories</option>
             <option value="flight">Flight</option>
             <option value="hotel">Hotel</option>
             <option value="car_rental">Car Rental</option>
             <option value="conference">Conference</option>
             <option value="product">Product</option>
             <option value="service">Service</option>
+            <option value="general">General</option>
           </select>
         </div>
         <div className={styles.filterGroup}>
           <label htmlFor="status">Status:</label>
-          <select id="status" className={styles.filterSelect}>
+          <select 
+            id="status" 
+            className={styles.filterSelect}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
             <option value="">All Statuses</option>
+            <option value="active">Active</option>
             <option value="available">Available</option>
             <option value="reserved">Reserved</option>
             <option value="purchased">Purchased</option>
@@ -153,32 +214,43 @@ export default function ItemList() {
             <option value="completed">Completed</option>
           </select>
         </div>
+        {(categoryFilter || statusFilter) && (
+          <button
+            onClick={() => {
+              setCategoryFilter('');
+              setStatusFilter('');
+            }}
+            className={styles.resetButton}
+          >
+            Reset Filters
+          </button>
+        )}
       </div>
       
       <div className={styles.itemsGrid}>
-        {items.length > 0 ? (
-          items.map(item => (
+        {filteredItems.length > 0 ? (
+          filteredItems.map(item => (
             <div key={item.id} className={styles.itemCard}>
               <div className={styles.itemHeader}>
-                <span className={`${styles.itemStatus} ${styles[item.status]}`}>
-                  {item.status}
+                <span className={`${styles.itemStatus} ${styles[item.status || 'active']}`}>
+                  {item.status || 'Active'}
                 </span>
-                <span className={`${styles.itemType} ${styles[item.type]}`}>
-                  {item.type}
+                <span className={`${styles.itemType} ${styles[item.category || 'general']}`}>
+                  {item.category || 'General'}
                 </span>
               </div>
               <h2 className={styles.itemName}>{item.name}</h2>
-              {item.total_price && item.currency && (
+              {item.properties?.price && (
                 <p className={styles.itemPrice}>
-                  {item.total_price} {item.currency}
+                  {item.properties.price.amount} {item.properties.price.currency || 'USD'}
                 </p>
               )}
               <p className={styles.itemVendor}>
-                Vendor: {item.vendor && item.vendor.name ? item.vendor.name : 'N/A'}
+                Vendor: {item.properties?.vendor?.name || 'N/A'}
               </p>
-              {item.event && (
+              {item.properties?.event && (
                 <p className={styles.itemEvent}>
-                  Event: {item.event.name || 'N/A'}
+                  Event: {item.properties.event.name || 'N/A'}
                 </p>
               )}
               <div className={styles.itemActions}>
@@ -198,7 +270,7 @@ export default function ItemList() {
               </div>
             </div>
           ))
-        ) : (
+        ) : loading ? null : (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>
               {/* Empty state icon */}

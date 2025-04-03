@@ -1,0 +1,80 @@
+/* /styles/modules/Groups.module.css */
+
+.groupsContainer {
+  padding: 1.5rem;
+}
+
+.title {
+  font-size: 1.875rem; /* 2xl */
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1.5rem;
+}
+
+.subTitle {
+  font-size: 1.25rem; /* xl */
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Tab styles */
+.tabList {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+}
+
+.tab {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 1rem;
+}
+
+.tabActive {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+.tabInactive {
+  color: #6b7280;
+}
+
+.tabInactive:hover {
+  color: #4b5563;
+  border-bottom-color: #e5e7eb;
+}
+
+.tabPanels {
+  margin-top: 1rem;
+}
+
+.tabPanel {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.panelContent {
+  background-color: white;
+  border-radius: 0.5rem;
+  min-height: 300px;
+}
+
+/* Group List styles */
+.groupListContainer {
+  width: 100%;
+}
+
+.groupListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}

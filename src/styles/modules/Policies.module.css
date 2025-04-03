@@ -1,0 +1,113 @@
+/* /styles/modules/Policies.module.css */
+
+.policiesContainer,
+.policyDetailContainer,
+.formContainer {
+  padding: 1.5rem;
+  /* background-color: #f9fafb; /* Light background */
+  /* min-height: calc(100vh - 4rem); /* Adjust based on header height */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  font-size: 1.875rem; /* 2xl */
+  font-weight: 600;
+  color: #111827;
+}
+
+.errorText {
+  color: #dc2626; /* Red-600 */
+  margin-top: 1rem;
+}
+
+/* Policy List Styles */
+.policyList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.policyListItem {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.policyListItem:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.policyLink {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.policyInfo {
+    flex-grow: 1;
+    margin-right: 1rem;
+}
+
+.policyName {
+  font-size: 1.125rem; /* lg */
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.policyDescription {
+  font-size: 0.875rem; /* sm */
+  color: #6b7280;
+}
+
+.policyStatus {
+  font-size: 0.75rem; /* xs */
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  background-color: #e0e7ff; /* Indigo-100 */
+  color: #4338ca; /* Indigo-700 */
+  white-space: nowrap;
+  /* Add different background/color based on status value if desired */
+}
+
+/* Policy Detail Styles */
+.actionButtons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.contentSection {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f3f4f6; /* Gray-100 */
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+}
+
+.contentSection h3 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.contentSection pre {
+    white-space: pre-wrap; /* Allow wrapping */
+    word-wrap: break-word;
+    font-family: monospace;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}

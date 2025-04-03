@@ -10,6 +10,7 @@ interface SelectProps {
   required?: boolean;
   disabled?: boolean;
   className?: string;
+  helpText?: string; // Added helpText prop for additional context or loading states
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -22,6 +23,7 @@ const Select: React.FC<SelectProps> = ({
   required = false,
   disabled = false,
   className = '',
+  helpText,
 }) => {
   return (
     <div className={`mb-4 ${className}`}>
@@ -48,6 +50,7 @@ const Select: React.FC<SelectProps> = ({
         ))}
       </select>
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {helpText && <p className="mt-1 text-sm text-gray-500">{helpText}</p>}
     </div>
   );
 };

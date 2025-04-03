@@ -1,0 +1,186 @@
+/*!**********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./src/styles/modules/Policies.module.css ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************/
+/* /styles/modules/Policies.module.css */
+
+.Policies_policiesContainer___ZIZd,
+.Policies_policyDetailContainer__3qdNO,
+.Policies_formContainer__UfwVl {
+  padding: 1.5rem;
+  /* background-color: #f9fafb; /* Light background */
+  /* min-height: calc(100vh - 4rem); /* Adjust based on header height */
+}
+
+.Policies_header__BmHQD {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.Policies_title__09JCY {
+  font-size: 1.875rem; /* 2xl */
+  font-weight: 600;
+  color: #111827;
+}
+
+.Policies_errorText__oOXQB {
+  color: #dc2626; /* Red-600 */
+  margin-top: 1rem;
+}
+
+/* Policy List Styles */
+.Policies_policyList__6uX_b {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.Policies_policyListItem__cocM0 {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.Policies_policyListItem__cocM0:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.Policies_policyLink__BZfRA {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.Policies_policyInfo__wOx0B {
+    flex-grow: 1;
+    margin-right: 1rem;
+}
+
+.Policies_policyName__QcBpF {
+  font-size: 1.125rem; /* lg */
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.Policies_policyDescription__frhYz {
+  font-size: 0.875rem; /* sm */
+  color: #6b7280;
+}
+
+.Policies_policyStatus__SWTT8 {
+  font-size: 0.75rem; /* xs */
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  background-color: #e0e7ff; /* Indigo-100 */
+  color: #4338ca; /* Indigo-700 */
+  white-space: nowrap;
+  /* Add different background/color based on status value if desired */
+}
+
+/* Policy Detail Styles */
+.Policies_actionButtons__lHoru {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.Policies_contentSection__WGNwa {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f3f4f6; /* Gray-100 */
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+}
+
+.Policies_contentSection__WGNwa h3 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.Policies_contentSection__WGNwa pre {
+    white-space: pre-wrap; /* Allow wrapping */
+    word-wrap: break-word;
+    font-family: monospace;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+/*!***********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./src/styles/components/Button.module.css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************/
+/* /styles/components/Button.module.css */
+
+.Button_button__JbAbs {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1rem; /* Adjust padding as needed (10px 16px) */
+  border-radius: 0.375rem; /* 6px */
+  border: 1px solid transparent;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  line-height: 1.25rem; /* 20px */
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.Button_button__JbAbs:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  /* Consider adding a focus ring style, e.g., using box-shadow */
+  /* box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* Example focus ring */
+}
+
+.Button_button__JbAbs:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Primary Button Style (e.g., blue) */
+.Button_primary__wzAr2 {
+  background-color: #2563eb; /* Blue-600 */
+  color: white;
+  border-color: #2563eb;
+}
+
+.Button_primary__wzAr2:hover {
+  background-color: #1d4ed8; /* Blue-700 */
+  border-color: #1d4ed8;
+}
+
+/* Secondary Button Style (e.g., gray/outline) */
+.Button_secondary__3r2QB {
+  background-color: white;
+  color: #374151; /* Gray-700 */
+  border-color: #d1d5db; /* Gray-300 */
+}
+
+.Button_secondary__3r2QB:hover {
+  background-color: #f9fafb; /* Gray-50 */
+  border-color: #9ca3af; /* Gray-400 */
+}
+
+/* Danger Button Style (e.g., red) */
+.Button_danger__UtM2H {
+  background-color: #dc2626; /* Red-600 */
+  color: white;
+  border-color: #dc2626;
+}
+
+.Button_danger__UtM2H:hover {
+  background-color: #b91c1c; /* Red-700 */
+  border-color: #b91c1c;
+}
+

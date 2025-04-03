@@ -70,13 +70,35 @@ export const WalletAPI = {
     }
   },
 
-  // Get payment methods for wallet
+  // Get all payment methods (not tied to a wallet)
+  getAllPaymentMethods: async (): Promise<PaymentMethod[]> => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/payment-methods`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching all payment methods:', error);
+      throw error;
+    }
+  },
+
+  // Get payment methods for a specific wallet
   getPaymentMethods: async (walletId: string): Promise<PaymentMethod[]> => {
     try {
       const response = await axios.get(`${API_BASE_URL}/wallets/${walletId}/payment-methods`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching payment methods for wallet ${walletId}:`, error);
+      throw error;
+    }
+  },
+
+  // Create a payment method (not tied to a wallet)
+  createPaymentMethod: async (paymentMethod: Partial<PaymentMethod>): Promise<PaymentMethod> => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/payment-methods`, paymentMethod);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating payment method:', error);
       throw error;
     }
   },

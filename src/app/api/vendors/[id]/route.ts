@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase';
+import { supabase } from '@/utils/supabase';
 
 // Get a specific vendor by ID
 export async function GET(
@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { id } = params;
-    const supabase = createClient();
     
     const { data: vendor, error } = await supabase
       .from('vendors')
@@ -40,7 +39,6 @@ export async function PUT(
   try {
     const { id } = params;
     const vendorData = await request.json();
-    const supabase = createClient();
     
     // Basic validation
     if (!vendorData.name || !vendorData.type) {
@@ -83,7 +81,6 @@ export async function DELETE(
 ) {
   try {
     const { id } = params;
-    const supabase = createClient();
     
     const { error } = await supabase
       .from('vendors')

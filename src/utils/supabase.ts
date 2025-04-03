@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 // Get environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -10,7 +10,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Create supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey);
+
+// Export a function to create a new client (useful in API routes)
+export function createClient() {
+  return createSupabaseClient(supabaseUrl, supabaseAnonKey);
+}
 
 // Error handling wrapper for Supabase queries
 export async function safeQuery<T>(queryFn: () => Promise<T>): Promise<{ data: T | null; error: any }> {

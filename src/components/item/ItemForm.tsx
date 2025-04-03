@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeftIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { ItemGroup, ItemGroupAPI } from '@/api/item/item-group-api';
+import { ItemAPI } from '@/api/item/item-api';
 import styles from '@/styles/components/ItemForm.module.css';
 
 type ItemFormProps = {
@@ -22,14 +24,33 @@ export default function ItemForm({ id, onClose, onSave }: ItemFormProps) {
     type: '',
     vendor_id: '',
     vendor_name: '',
+    group_id: '',
     // Additional fields based on item type would be conditionally rendered
   });
+  
+  const [itemGroups, setItemGroups] = useState<ItemGroup[]>([]);
+  const [loadingGroups, setLoadingGroups] = useState(false);
   
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
+    // Fetch item groups regardless of edit/create mode
+    const fetchItemGroups = async () => {
+      setLoadingGroups(true);
+      try {
+        const groups = await ItemGroupAPI.getItemGroups();
+        setItemGroups(groups);
+      } catch (error) {
+        console.error('Error fetching item groups:', error);
+      } finally {
+        setLoadingGroups(false);
+      }
+    };
+    
+    fetchItemGroups();
+    
     if (isEditing) {
       // Fetch item data
       // For demo, we'll use mock data
@@ -40,6 +61,7 @@ export default function ItemForm({ id, onClose, onSave }: ItemFormProps) {
           type: 'flight',
           vendor_id: '123',
           vendor_name: 'Delta Airlines',
+          group_id: '', // Add empty group_id field for now
         });
         setLoading(false);
       }, 500);
@@ -60,19 +82,36 @@ export default function ItemForm({ id, onClose, onSave }: ItemFormProps) {
     setError(null);
     
     try {
-      // API call to save item
-      // For demo, just simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Data validation
+      if (!formData.name || !formData.name.trim()) {
+        throw new Error('Item name is required');
+      }
+      
+      if (!formData.type || !formData.type.trim()) {
+        throw new Error('Item type is required');
+      }
+      
+      // Call the appropriate API method based on whether we're editing or creating
+      let savedItem;
+      if (isEditing && id) {
+        savedItem = await ItemAPI.updateItem(id, formData);
+        console.log('Item updated:', savedItem);
+      } else {
+        savedItem = await ItemAPI.createItem(formData);
+        console.log('Item created:', savedItem);
+      }
       
       if (onSave) {
-        onSave(formData);
+        onSave(savedItem);
       } else {
         // Fallback to traditional navigation if onSave is not provided
         router.push(isEditing ? `/items/${id}` : '/items');
       }
     } catch (err) {
-      setError('Failed to save item. Please try again.');
+      console.error('Error saving item:', err);
+      setError(err.message || 'Failed to save item. Please try again.');
       setSaving(false);
+      return; // Prevent further execution
     }
   };
   
@@ -214,6 +253,28 @@ export default function ItemForm({ id, onClose, onSave }: ItemFormProps) {
                     placeholder="Provide a description"
                     rows={3}
                   />
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel} htmlFor="group_id">
+                    Item Group
+                  </label>
+                  <select
+                    id="group_id"
+                    name="group_id"
+                    value={formData.group_id}
+                    onChange={handleChange}
+                    className={styles.formInput}
+                    disabled={loadingGroups}
+                  >
+                    <option value="">Select a group</option>
+                    {itemGroups.map(group => (
+                      <option key={group.id} value={group.id}>
+                        {group.name}
+                      </option>
+                    ))}
+                  </select>
+                  {loadingGroups && <p className="text-sm text-gray-500 mt-1">Loading groups...</p>}
                 </div>
               </div>
             </div>

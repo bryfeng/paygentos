@@ -7,6 +7,7 @@ import { LedgerAPI } from '../../api/ledger/ledger-api';
 import DashboardStats from './DashboardStats';
 import RecentActivity from './RecentActivity';
 import UpcomingPayments from './UpcomingPayments';
+import PaymentTypes from './PaymentTypes';
 import Card from '../shared/Card';
 
 const Dashboard: React.FC = () => {
@@ -132,8 +133,10 @@ const Dashboard: React.FC = () => {
             <UpcomingPayments payments={upcomingPayments} />
           </div>
           
+
+          
           <Card title="Quick Actions">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <a href="/customers/new" className="block p-4 bg-blue-50 rounded-lg text-center hover:bg-blue-100">
                 <div className="text-3xl mb-2">👤</div>
                 <h3 className="font-medium">Add Customer</h3>
@@ -141,6 +144,10 @@ const Dashboard: React.FC = () => {
               <a href="/events/new" className="block p-4 bg-green-50 rounded-lg text-center hover:bg-green-100">
                 <div className="text-3xl mb-2">📅</div>
                 <h3 className="font-medium">Create Event</h3>
+              </a>
+              <a href="/payment-methods/new" className="block p-4 bg-blue-50 rounded-lg text-center hover:bg-blue-100">
+                <div className="text-3xl mb-2">💳</div>
+                <h3 className="font-medium">Add Payment Method</h3>
               </a>
               <a href="/travel/flights" className="block p-4 bg-purple-50 rounded-lg text-center hover:bg-purple-100">
                 <div className="text-3xl mb-2">✈️</div>

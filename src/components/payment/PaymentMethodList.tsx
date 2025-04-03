@@ -14,58 +14,13 @@ const PaymentMethodList = () => {
     const fetchPaymentMethods = async () => {
       try {
         setLoading(true);
-        // In a real application, this would call the actual API
-        // const response = await WalletAPI.getPaymentMethods();
-        // setPaymentMethods(response);
-        
-        // For demo purposes, we'll use mock data
-        setPaymentMethods([
-          {
-            id: '1',
-            customerId: '1',
-            type: 'Credit Card',
-            name: 'Corporate Visa',
-            details: {
-              cardNumber: '**** **** **** 4567',
-              expiryDate: '05/27',
-              cardholderName: 'John Smith'
-            },
-            isDefault: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          },
-          {
-            id: '2',
-            customerId: '1',
-            type: 'Bank Account',
-            name: 'Business Checking',
-            details: {
-              accountNumber: '****5678',
-              routingNumber: '****9012',
-              bankName: 'First National Bank'
-            },
-            isDefault: false,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          },
-          {
-            id: '3',
-            customerId: '2',
-            type: 'Credit Card',
-            name: 'Corporate Amex',
-            details: {
-              cardNumber: '**** **** **** 7890',
-              expiryDate: '12/26',
-              cardholderName: 'Jane Doe'
-            },
-            isDefault: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }
-        ]);
+        // Call the real API to get payment methods
+        const methods = await WalletAPI.getAllPaymentMethods();
+        setPaymentMethods(methods);
         setLoading(false);
       } catch (err) {
-        setError('Failed to fetch payment methods');
+        console.error('Error loading payment methods:', err);
+        setError('Failed to fetch payment methods. Please try again later.');
         setLoading(false);
       }
     };
@@ -103,25 +58,31 @@ const PaymentMethodList = () => {
             <div className="p-4">
               <div className="flex justify-between items-start">
                 <h3 className="text-lg font-semibold mb-2">{method.name}</h3>
-                {method.isDefault && (
-                  <span className="px-2 py-1 rounded text-xs bg-green-100 text-green-800">
-                    Default
-                  </span>
-                )}
               </div>
-              <p className="text-gray-600 mb-1">Type: {method.type}</p>
-              {method.type === 'Credit Card' && (
+              <p className="text-gray-600 mb-1">Type: {method.type === 'credit_card' ? 'Credit Card' : 
+                                          method.type === 'debit_card' ? 'Debit Card' : 
+                                          method.type === 'bank_account' ? 'Bank Account' : 
+                                          method.type === 'digital_wallet' ? 'Digital Wallet' : 
+                                          method.type === 'corporate_account' ? 'Corporate Account' : 'Other'}</p>
+              {(method.type === 'credit_card' || method.type === 'debit_card') && (
                 <>
-                  <p className="text-gray-600 mb-1">Card Number: {method.details.cardNumber}</p>
-                  <p className="text-gray-600 mb-1">Expiry: {method.details.expiryDate}</p>
+                  {method.details.maskedNumber && (
+                    <p className="text-gray-600 mb-1">Card Number: {method.details.maskedNumber}</p>
+                  )}
+                  {method.details.maskedCardNumber && (
+                    <p className="text-gray-600 mb-1">Card Number: {method.details.maskedCardNumber}</p>
+                  )}
+                  <p className="text-gray-600 mb-1">Expiry: {method.details.expiryMonth}/{method.details.expiryYear}</p>
                   <p className="text-gray-600 mb-3">Cardholder: {method.details.cardholderName}</p>
                 </>
               )}
-              {method.type === 'Bank Account' && (
+              {method.type === 'bank_account' && (
                 <>
-                  <p className="text-gray-600 mb-1">Account: {method.details.accountNumber}</p>
+                  {method.details.maskedAccountNumber && (
+                    <p className="text-gray-600 mb-1">Account: {method.details.maskedAccountNumber}</p>
+                  )}
                   <p className="text-gray-600 mb-1">Routing: {method.details.routingNumber}</p>
-                  <p className="text-gray-600 mb-3">Bank: {method.details.bankName}</p>
+                  <p className="text-gray-600 mb-3">Type: {method.details.accountType}</p>
                 </>
               )}
               <div className="flex justify-end space-x-2">

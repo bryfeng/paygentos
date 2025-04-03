@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../shared/Card';
 import Input from '../shared/Input';
 import Select from '../shared/Select';
 import Button from '../shared/Button';
 import { Customer } from '../../models/customer/customer';
+import { CustomerGroup, CustomerGroupAPI } from '../../api/customer/customer-group-api';
 
 interface CustomerFormProps {
   customer?: Partial<Customer>;
@@ -25,6 +26,9 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   const [company, setCompany] = useState(customer.company || '');
   const [role, setRole] = useState(customer.role || '');
   const [department, setDepartment] = useState(customer.department || '');
+  const [groupId, setGroupId] = useState(customer.group_id || '');
+  const [customerGroups, setCustomerGroups] = useState<CustomerGroup[]>([]);
+  const [loadingGroups, setLoadingGroups] = useState(false);
   const [formErrors, setFormErrors] = useState({
     firstName: '',
     lastName: '',
@@ -61,6 +65,22 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     return isValid;
   };
 
+  useEffect(() => {
+    const fetchCustomerGroups = async () => {
+      setLoadingGroups(true);
+      try {
+        const groups = await CustomerGroupAPI.getCustomerGroups();
+        setCustomerGroups(groups);
+      } catch (error) {
+        console.error('Error fetching customer groups:', error);
+      } finally {
+        setLoadingGroups(false);
+      }
+    };
+
+    fetchCustomerGroups();
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
@@ -73,6 +93,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         company: company || undefined,
         role: role || undefined,
         department: department || undefined,
+        group_id: groupId || undefined,
       };
       onSubmit(updatedCustomer);
     }
@@ -156,6 +177,22 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           options={departmentOptions}
           value={department}
           onChange={(e) => setDepartment(e.target.value)}
+        />
+        
+        <Select
+          id="group_id"
+          label="Customer Group"
+          options={[
+            { value: '', label: 'Select Group' },
+            ...customerGroups.map(group => ({
+              value: group.id || '',
+              label: group.name
+            }))
+          ]}
+          value={groupId}
+          onChange={(e) => setGroupId(e.target.value)}
+          disabled={loadingGroups}
+          helpText={loadingGroups ? 'Loading groups...' : ''}
         />
         
         <div className="flex justify-end mt-6">

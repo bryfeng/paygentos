@@ -3,56 +3,52 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FiPlus, FiFilter } from 'react-icons/fi';
+import { VendorAPI, Vendor } from '@/api/vendor/vendor-api';
 
 export default function VendorsPage() {
-  const [vendors, setVendors] = useState([]);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
-  // Mock data for vendors
-  const mockVendors = [
-    {
-      id: '1',
-      name: 'Delta Airlines',
-      type: 'airline',
-      contactEmail: 'support@delta.com',
-      contactPhone: '+1-800-221-1212',
-      status: 'active'
-    },
-    {
-      id: '2',
-      name: 'Marriott Hotels',
-      type: 'hotel',
-      contactEmail: 'support@marriott.com',
-      contactPhone: '+1-888-236-2427',
-      status: 'active'
-    },
-    {
-      id: '3',
-      name: 'Hertz Car Rental',
-      type: 'car_rental',
-      contactEmail: 'support@hertz.com',
-      contactPhone: '+1-800-654-3131',
-      status: 'active'
-    },
-    {
-      id: '4',
-      name: 'Hilton Hotels',
-      type: 'hotel',
-      contactEmail: 'support@hilton.com',
-      contactPhone: '+1-800-445-8667',
-      status: 'inactive'
+
+
+  const fetchVendors = async () => {
+    setLoading(true);
+    try {
+      const vendorsData = await VendorAPI.getVendors();
+      setVendors(vendorsData || []); 
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching vendors:', err);
+      setError(err.message || 'Failed to fetch vendors');
+      setLoading(false);
     }
-  ];
+  };
 
   useEffect(() => {
-    // Simulate API call to fetch vendors
-    setLoading(true);
-    setTimeout(() => {
-      setVendors(mockVendors);
-      setLoading(false);
-    }, 800);
+    // Fetch vendors from the API on component mount
+    fetchVendors();
   }, []);
+  
+  const handleDeleteVendor = async (id: string | undefined) => {
+    if (!id) return;
+    if (!confirm('Are you sure you want to delete this vendor? This action cannot be undone.')) {
+      return;
+    }
+    
+    setDeleteLoading(id);
+    try {
+      await VendorAPI.deleteVendor(id);
+      // Refresh the vendors list
+      fetchVendors();
+    } catch (err) {
+      console.error('Error deleting vendor:', err);
+      alert('Failed to delete vendor. Please try again.');
+    } finally {
+      setDeleteLoading(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -135,8 +131,8 @@ export default function VendorsPage() {
                   <div className="text-sm text-gray-500 capitalize">{vendor.type.replace('_', ' ')}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500">{vendor.contactEmail}</div>
-                  <div className="text-sm text-gray-500">{vendor.contactPhone}</div>
+                  <div className="text-sm text-gray-500">{vendor.contact_email || 'N/A'}</div>
+                  <div className="text-sm text-gray-500">{vendor.contact_phone || 'N/A'}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${vendor.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
@@ -150,8 +146,12 @@ export default function VendorsPage() {
                   <Link href={`/vendors/${vendor.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-4">
                     Edit
                   </Link>
-                  <button className="text-red-600 hover:text-red-900">
-                    Delete
+                  <button 
+                    className="text-red-600 hover:text-red-900"
+                    onClick={() => vendor.id && handleDeleteVendor(vendor.id)}
+                    disabled={deleteLoading === vendor.id}
+                  >
+                    {deleteLoading === vendor.id ? 'Deleting...' : 'Delete'}
                   </button>
                 </td>
               </tr>

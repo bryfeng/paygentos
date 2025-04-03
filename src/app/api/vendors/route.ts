@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase';
+import { supabase } from '@/utils/supabase';
 
 // Get all vendors
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
-    
     // Get search params
     const searchParams = request.nextUrl.searchParams;
     const type = searchParams.get('type');
@@ -41,7 +39,6 @@ export async function GET(request: NextRequest) {
 // Create a new vendor
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
     const vendorData = await request.json();
     
     // Basic validation

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Customer, ContactType, ContactInfo } from '../../../../models/customer/customer';
 import { CustomerAPI } from '../../../../api/customer/customer-api';
+import { CustomerGroup, CustomerGroupAPI } from '../../../../api/customer/customer-group-api';
 import { FiArrowLeft, FiSave, FiLoader, FiAlertCircle, FiPlus, FiTrash } from 'react-icons/fi';
 
 export default function EditCustomerPage() {
@@ -16,6 +17,8 @@ export default function EditCustomerPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [customerGroups, setCustomerGroups] = useState<CustomerGroup[]>([]);
+  const [loadingGroups, setLoadingGroups] = useState(false);
   const [formData, setFormData] = useState<Partial<Customer>>({
     firstName: '',
     lastName: '',
@@ -27,10 +30,26 @@ export default function EditCustomerPage() {
     postalCode: '',
     country: '',
     isActive: true,
+    group_id: '',
     contacts: [] as ContactInfo[]
   });
 
   useEffect(() => {
+    // Fetch customer groups
+    const fetchCustomerGroups = async () => {
+      setLoadingGroups(true);
+      try {
+        const groups = await CustomerGroupAPI.getCustomerGroups();
+        setCustomerGroups(groups);
+      } catch (error) {
+        console.error('Error fetching customer groups:', error);
+      } finally {
+        setLoadingGroups(false);
+      }
+    };
+
+    fetchCustomerGroups();
+    
     const fetchCustomer = async () => {
       try {
         setLoading(true);
@@ -348,6 +367,28 @@ export default function EditCustomerPage() {
                   />
                   <span className="text-sm font-medium text-gray-700">Active Customer</span>
                 </label>
+              </div>
+              
+              <div>
+                <label htmlFor="group_id" className="block text-sm font-medium text-gray-700">
+                  Customer Group
+                </label>
+                <select
+                  id="group_id"
+                  name="group_id"
+                  value={formData.group_id || ''}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                  disabled={loadingGroups}
+                >
+                  <option value="">Select Group</option>
+                  {customerGroups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+                {loadingGroups && <p className="mt-1 text-xs text-gray-500">Loading groups...</p>}
               </div>
             </div>
 

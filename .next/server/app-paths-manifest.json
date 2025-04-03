@@ -1,7 +1,11 @@
 {
-  "/events/new/page": "app/events/new/page.js",
-  "/events/[id]/page": "app/events/[id]/page.js",
-  "/vendors/page": "app/vendors/page.js",
-  "/vendors/new/page": "app/vendors/new/page.js",
-  "/dashboard/page": "app/dashboard/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/events/route": "app/api/events/route.js",
+  "/api/items/route": "app/api/items/route.js",
+  "/policies/page": "app/policies/page.js",
+  "/groups/page": "app/groups/page.js",
+  "/policies/new/page": "app/policies/new/page.js",
+  "/events/page": "app/events/page.js",
+  "/items/page": "app/items/page.js",
+  "/customers/page": "app/customers/page.js"
 }
