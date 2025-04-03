@@ -7,24 +7,12 @@ import buttonStyles from '@/styles/components/Button.module.css';
 import { WalletAPI } from '@/api/wallet/wallet-api';
 import { createClient } from '@/utils/supabase';
 
-// Define types for our spending policy data structure
-interface SpendingPolicy {
-  id?: string;
-  name: string;
-  description: string;
-  budget_amount: number;
-  budget_interval: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annually' | 'one_time';
-  budget_start_date: string;
-  budget_end_date: string;
-  status: 'active' | 'inactive' | 'draft';
-  allowed_payment_types: string[];
-  require_approval: boolean;
-  approval_threshold?: number;
-  item_groups: string[];  // IDs of item groups
-  customer_groups: string[]; // IDs of customer groups
-  event_groups: string[]; // IDs of event groups
-  payment_methods: string[]; // IDs of payment methods
-  vendors: string[]; // IDs of vendors
+// Import the SpendingPolicy interface from the API file to ensure consistency
+import { SpendingPolicy } from '@/api/spending-policy/spending-policy-api';
+
+// Add any additional local interface properties here if needed
+interface FormSpendingPolicy extends SpendingPolicy {
+  // Any form-specific properties can go here
 }
 
 // Types for our select options
@@ -43,17 +31,14 @@ interface PaymentMethod {
 interface FormProps {
   existingPolicy?: SpendingPolicy;
   onSubmit: (policy: SpendingPolicy) => Promise<void>;
+  isEditMode?: boolean;
   onCancel?: () => void;
 }
 
 // Available payment types
 const PAYMENT_TYPES = [
-  { id: 'credit', name: 'Credit Card' },
-  { id: 'debit', name: 'Debit Card' },
-  { id: 'bank_transfer', name: 'Bank Transfer' },
-  { id: 'digital_wallet', name: 'Digital Wallet' },
-  { id: 'corporate_card', name: 'Corporate Card' },
-  { id: 'cash', name: 'Cash' },
+  { id: 'one_time', name: 'One Time' },
+  { id: 'recurring', name: 'Recurring' },
 ];
 
 export default function SpendingPolicyForm({ existingPolicy, onSubmit, onCancel }: FormProps) {
@@ -61,22 +46,25 @@ export default function SpendingPolicyForm({ existingPolicy, onSubmit, onCancel 
   const isEditMode = !!existingPolicy;
   
   // Initialize form state
-  const [policy, setPolicy] = useState<SpendingPolicy>({
-    name: '',
+  const [policy, setPolicy] = useState<FormSpendingPolicy>({
     description: '',
     budget_amount: 1000,
     budget_interval: 'monthly',
     budget_start_date: new Date().toISOString().split('T')[0],
     budget_end_date: new Date(new Date().setMonth(new Date().getMonth() + 12)).toISOString().split('T')[0],
     status: 'draft',
-    allowed_payment_types: ['credit', 'debit'],
+    allowed_payment_types: ['one_time'],
     require_approval: true,
     approval_threshold: 500,
     item_groups: [],
     customer_groups: [],
     event_groups: [],
     payment_methods: [],
-    vendors: []
+    vendors: [],
+    individual_items: [],
+    individual_customers: [],
+    individual_events: [],
+    action: 'allow' // Default action is allow
   });
   
   // Available options states
@@ -85,6 +73,11 @@ export default function SpendingPolicyForm({ existingPolicy, onSubmit, onCancel 
   const [eventGroups, setEventGroups] = useState<SelectOption[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [vendors, setVendors] = useState<SelectOption[]>([]);
+  
+  // Individual entities
+  const [items, setItems] = useState<SelectOption[]>([]);
+  const [customers, setCustomers] = useState<SelectOption[]>([]);
+  const [events, setEvents] = useState<SelectOption[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -117,6 +110,24 @@ export default function SpendingPolicyForm({ existingPolicy, onSubmit, onCancel 
         if (itemGroupsError) throw itemGroupsError;
         setItemGroups(itemGroupsData || []);
         
+        // Fetch individual items from database
+        try {
+          const { data: itemsData, error: itemsError } = await supabase
+            .from('items')
+            .select('id, name')
+            .order('name');
+          
+          if (itemsError) {
+            console.warn('Error fetching items:', itemsError.message);
+            // Continue execution instead of throwing
+          } else {
+            setItems(itemsData || []);
+          }
+        } catch (itemFetchErr) {
+          console.warn('Could not fetch items, table might not exist:', itemFetchErr);
+          // Continue execution
+        }
+        
         // Fetch customer groups from database
         const { data: customerGroupsData, error: customerGroupsError } = await supabase
           .from('customer_groups')
@@ -126,6 +137,24 @@ export default function SpendingPolicyForm({ existingPolicy, onSubmit, onCancel 
         if (customerGroupsError) throw customerGroupsError;
         setCustomerGroups(customerGroupsData || []);
         
+        // Fetch individual customers from database
+        try {
+          const { data: customersData, error: customersError } = await supabase
+            .from('customers')
+            .select('id, name')
+            .order('name');
+          
+          if (customersError) {
+            console.warn('Error fetching customers:', customersError.message);
+            // Continue execution instead of throwing
+          } else {
+            setCustomers(customersData || []);
+          }
+        } catch (customerFetchErr) {
+          console.warn('Could not fetch customers, table might not exist:', customerFetchErr);
+          // Continue execution
+        }
+        
         // Fetch event groups from database
         const { data: eventGroupsData, error: eventGroupsError } = await supabase
           .from('event_groups')
@@ -134,6 +163,24 @@ export default function SpendingPolicyForm({ existingPolicy, onSubmit, onCancel 
         
         if (eventGroupsError) throw eventGroupsError;
         setEventGroups(eventGroupsData || []);
+        
+        // Fetch individual events from database
+        try {
+          const { data: eventsData, error: eventsError } = await supabase
+            .from('events')
+            .select('id, name')
+            .order('name');
+          
+          if (eventsError) {
+            console.warn('Error fetching events:', eventsError.message);
+            // Continue execution instead of throwing
+          } else {
+            setEvents(eventsData || []);
+          }
+        } catch (eventFetchErr) {
+          console.warn('Could not fetch events, table might not exist:', eventFetchErr);
+          // Continue execution
+        }
         
         // Fetch vendors from database
         const { data: vendorsData, error: vendorsError } = await supabase
@@ -208,10 +255,6 @@ export default function SpendingPolicyForm({ existingPolicy, onSubmit, onCancel 
     
     try {
       // Validation
-      if (!policy.name) {
-        throw new Error('Policy name is required');
-      }
-      
       if (policy.budget_amount <= 0) {
         throw new Error('Budget amount must be greater than zero');
       }
@@ -224,13 +267,16 @@ export default function SpendingPolicyForm({ existingPolicy, onSubmit, onCancel 
         throw new Error('Approval threshold must be set when approval is required');
       }
       
-      // Check if at least one group is selected
+      // Check if at least one group or individual entity is selected
       if (
         policy.item_groups.length === 0 && 
         policy.customer_groups.length === 0 && 
-        policy.event_groups.length === 0
+        policy.event_groups.length === 0 &&
+        (!policy.individual_items || policy.individual_items.length === 0) &&
+        (!policy.individual_customers || policy.individual_customers.length === 0) &&
+        (!policy.individual_events || policy.individual_events.length === 0)
       ) {
-        throw new Error('At least one group (item, customer, or event) must be selected');
+        throw new Error('At least one group or individual entity (item, customer, or event) must be selected');
       }
       
       // Check if at least one payment method is selected
@@ -277,17 +323,37 @@ export default function SpendingPolicyForm({ existingPolicy, onSubmit, onCancel 
         <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
         
         <div className={styles.formGroup}>
-          <label htmlFor="name" className={styles.label}>Policy Name *</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={policy.name}
-            onChange={handleInputChange}
-            required
-            className={styles.input}
-            placeholder="Enter policy name"
-          />
+          <label className={styles.label}>Policy Action *</label>
+          <div className="flex space-x-4">
+            <div className="flex items-center">
+              <input
+                type="radio"
+                id="action_allow"
+                name="action"
+                value="allow"
+                checked={policy.action === 'allow'}
+                onChange={(e) => setPolicy({ ...policy, action: e.target.value as 'allow' | 'block' })}
+                className="h-4 w-4 mr-2"
+                required
+              />
+              <label htmlFor="action_allow" className="text-green-700 font-medium">Allow</label>
+            </div>
+            <div className="flex items-center">
+              <input
+                type="radio"
+                id="action_block"
+                name="action"
+                value="block"
+                checked={policy.action === 'block'}
+                onChange={(e) => setPolicy({ ...policy, action: e.target.value as 'allow' | 'block' })}
+                className="h-4 w-4 mr-2"
+              />
+              <label htmlFor="action_block" className="text-red-700 font-medium">Block</label>
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Choose whether this policy should allow or block matching transactions
+          </p>
         </div>
         
         <div className={styles.formGroup}>
@@ -488,7 +554,7 @@ export default function SpendingPolicyForm({ existingPolicy, onSubmit, onCancel 
       <div className="bg-gray-50 p-4 rounded-lg mb-6">
         <h3 className="text-lg font-semibold mb-4">Group Assignments</h3>
         <p className="text-sm text-gray-600 mb-4">
-          Select which groups this policy applies to. At least one group must be selected.
+          Select which groups this policy applies to. At least one group or individual entity must be selected.
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -619,6 +685,106 @@ export default function SpendingPolicyForm({ existingPolicy, onSubmit, onCancel 
             {policy.vendors.length} selected
             {vendors.length > 0 && ` of ${vendors.length}`}
           </p>
+        </div>
+      </div>
+      
+      {/* Individual Entities Section (Optional) */}
+      <div className="bg-gray-50 p-4 rounded-lg mb-6">
+        <h3 className="text-lg font-semibold mb-4">Individual Items, Customers, and Events (Optional)</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Optionally select specific individual items, customers, or events for more granular policy control.
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Individual Items */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Individual Items</label>
+            <div className="max-h-60 overflow-y-auto p-2 border rounded">
+              {items.length === 0 ? (
+                <div className="text-center py-4 text-gray-500">
+                  No items found. <br />
+                  <a href="/items/new" className="text-blue-600 hover:underline">Create items</a> first.
+                </div>
+              ) : (
+                items.map(item => (
+                  <div key={item.id} className="flex items-center p-2 hover:bg-gray-100 rounded">
+                    <input
+                      type="checkbox"
+                      id={`item_${item.id}`}
+                      checked={policy.individual_items?.includes(item.id) || false}
+                      onChange={(e) => handleMultiSelectChange('individual_items', item.id, e.target.checked)}
+                      className="h-4 w-4 mr-2"
+                    />
+                    <label htmlFor={`item_${item.id}`}>{item.name}</label>
+                  </div>
+                ))
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {policy.individual_items?.length || 0} selected
+              {items.length > 0 && ` of ${items.length}`}
+            </p>
+          </div>
+          
+          {/* Individual Customers */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Individual Customers</label>
+            <div className="max-h-60 overflow-y-auto p-2 border rounded">
+              {customers.length === 0 ? (
+                <div className="text-center py-4 text-gray-500">
+                  No customers found. <br />
+                  <a href="/customers/new" className="text-blue-600 hover:underline">Create customers</a> first.
+                </div>
+              ) : (
+                customers.map(customer => (
+                  <div key={customer.id} className="flex items-center p-2 hover:bg-gray-100 rounded">
+                    <input
+                      type="checkbox"
+                      id={`customer_${customer.id}`}
+                      checked={policy.individual_customers?.includes(customer.id) || false}
+                      onChange={(e) => handleMultiSelectChange('individual_customers', customer.id, e.target.checked)}
+                      className="h-4 w-4 mr-2"
+                    />
+                    <label htmlFor={`customer_${customer.id}`}>{customer.name}</label>
+                  </div>
+                ))
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {policy.individual_customers?.length || 0} selected
+              {customers.length > 0 && ` of ${customers.length}`}
+            </p>
+          </div>
+          
+          {/* Individual Events */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Individual Events</label>
+            <div className="max-h-60 overflow-y-auto p-2 border rounded">
+              {events.length === 0 ? (
+                <div className="text-center py-4 text-gray-500">
+                  No events found. <br />
+                  <a href="/events/new" className="text-blue-600 hover:underline">Create events</a> first.
+                </div>
+              ) : (
+                events.map(event => (
+                  <div key={event.id} className="flex items-center p-2 hover:bg-gray-100 rounded">
+                    <input
+                      type="checkbox"
+                      id={`event_${event.id}`}
+                      checked={policy.individual_events?.includes(event.id) || false}
+                      onChange={(e) => handleMultiSelectChange('individual_events', event.id, e.target.checked)}
+                      className="h-4 w-4 mr-2"
+                    />
+                    <label htmlFor={`event_${event.id}`}>{event.name}</label>
+                  </div>
+                ))
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {policy.individual_events?.length || 0} selected
+              {events.length > 0 && ` of ${events.length}`}
+            </p>
+          </div>
         </div>
       </div>
       

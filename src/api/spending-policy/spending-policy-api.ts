@@ -4,8 +4,8 @@ const API_BASE_URL = '/api';
 
 export interface SpendingPolicy {
   id?: string;
-  name: string;
-  description?: string;
+  name?: string; // Made optional since we're not using it anymore
+  description: string; // Made required as it's the primary identifier now
   budget_amount: number;
   budget_interval: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annually' | 'one_time';
   budget_start_date?: string;
@@ -19,6 +19,10 @@ export interface SpendingPolicy {
   event_groups: string[];
   payment_methods: string[];
   vendors: string[];
+  action?: 'allow' | 'block'; // Add the new action field
+  individual_items?: string[];
+  individual_customers?: string[];
+  individual_events?: string[];
   created_at?: string;
   updated_at?: string;
 }
@@ -60,7 +64,7 @@ export const SpendingPolicyAPI = {
   // Update an existing spending policy
   updatePolicy: async (policyId: string, policy: Partial<SpendingPolicy>): Promise<SpendingPolicy> => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/spending-policies/${policyId}`, policy);
+      const response = await axios.patch(`${API_BASE_URL}/spending-policies/${policyId}`, policy);
       return response.data;
     } catch (error) {
       console.error(`Error updating spending policy ${policyId}:`, error);

@@ -5,15 +5,22 @@ import { supabase } from '@/utils/supabase';
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const status = searchParams.get('status');
+    const active = searchParams.get('active');
+    const groupId = searchParams.get('group_id');
 
     let query = supabase.from('policies').select('*');
 
-    if (status) {
-      query = query.eq('status', status);
+    if (active === 'true') {
+      query = query.eq('is_active', true);
+    } else if (active === 'false') {
+      query = query.eq('is_active', false);
+    }
+    
+    if (groupId) {
+      query = query.eq('group_id', groupId);
     }
 
-    const { data: policies, error } = await query.order('name');
+    const { data: policies, error } = await query.order('priority');
 
     if (error) {
       console.error('Error fetching policies:', error);
@@ -33,19 +40,27 @@ export async function POST(request: NextRequest) {
     const policyData = await request.json();
 
     // Basic validation
-    if (!policyData.name) {
-      return NextResponse.json({ error: 'Policy name is required' }, { status: 400 });
+    if (!policyData.priority) {
+      return NextResponse.json({ error: 'Policy priority is required' }, { status: 400 });
+    }
+
+    if (!policyData.conditions || !policyData.actions) {
+      return NextResponse.json({ error: 'Policy conditions and actions are required' }, { status: 400 });
     }
 
     const { data: newPolicy, error } = await supabase
       .from('policies')
       .insert([
         {
-          name: policyData.name,
+          priority: policyData.priority,
+          conditions: policyData.conditions,
+          actions: policyData.actions,
           description: policyData.description || null,
-          content: policyData.content || {},
-          version: policyData.version || 1,
-          status: policyData.status || 'draft',
+          is_active: policyData.is_active !== undefined ? policyData.is_active : true,
+          applies_to: policyData.applies_to || null,
+          group_id: policyData.group_id || null,
+          created_by: policyData.created_by || null,
+          updated_by: policyData.updated_by || null
         }
       ])
       .select()

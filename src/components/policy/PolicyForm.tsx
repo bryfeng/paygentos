@@ -10,21 +10,13 @@ import buttonStyles from '@/styles/components/Button.module.css';
 // Define the types for our policy data
 interface SpendingPolicy {
   id?: string;
-  name: string;
+  priority?: number;
   description?: string;
-  budget_amount: number;
-  budget_interval: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annually' | 'one_time';
-  budget_start_date?: string;
-  budget_end_date?: string;
-  status: 'active' | 'inactive' | 'draft';
-  allowed_payment_types: string[];
-  require_approval: boolean;
-  approval_threshold?: number;
-  itemGroups: string[];
-  customerGroups: string[];
-  eventGroups: string[];
-  paymentMethods: string[];
-  vendors: string[];
+  conditions: Record<string, any>;
+  actions: Record<string, any>;
+  is_active: boolean;
+  applies_to?: string;
+  group_id?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -52,12 +44,23 @@ interface PolicyFormProps {
 
 export default function PolicyForm({ existingPolicy = null, onCancel }: PolicyFormProps) {
   const router = useRouter();
-  const [formData, setFormData] = useState<Partial<Policy>>({
-    name: '',
+  // Define a form-specific interface to handle string representations of JSON fields
+  interface PolicyFormData {
+    priority?: number;
+    description?: string;
+    conditionsStr: string; // String representation for the form
+    actionsStr: string;   // String representation for the form
+    is_active: boolean;
+    applies_to?: string;
+    group_id?: string;
+  }
+
+  const [formData, setFormData] = useState<PolicyFormData>({
     description: '',
-    content: '', // Initialize as empty string, handle JSON later if needed
-    status: 'draft',
-    version: 1,
+    conditionsStr: '{}',
+    actionsStr: '{}',
+    is_active: true,
+    applies_to: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,21 +71,45 @@ export default function PolicyForm({ existingPolicy = null, onCancel }: PolicyFo
     if (isEditMode && existingPolicy) {
         // Pre-fill form if editing
         setFormData({
-            name: existingPolicy.name,
+            priority: existingPolicy.priority,
             description: existingPolicy.description || '',
-            // Handle content loading: If JSONB, stringify; if TEXT, use directly
-            content: typeof existingPolicy.content === 'object' ? JSON.stringify(existingPolicy.content, null, 2) : (existingPolicy.content || ''),
-            status: existingPolicy.status || 'draft',
-            version: existingPolicy.version || 1,
+            conditionsStr: typeof existingPolicy.conditions === 'object' ? JSON.stringify(existingPolicy.conditions, null, 2) : '{}',
+            actionsStr: typeof existingPolicy.actions === 'object' ? JSON.stringify(existingPolicy.actions, null, 2) : '{}',
+            is_active: existingPolicy.is_active,
+            applies_to: existingPolicy.applies_to || '',
+            group_id: existingPolicy.group_id,
         });
     }
   }, [isEditMode, existingPolicy]);
+  
+  // Find the highest existing priority to place new policies at the end
+  const [maxPriority, setMaxPriority] = useState(100);
+  
+  useEffect(() => {
+    // Fetch existing policies to determine max priority
+    if (!isEditMode) {
+      const fetchMaxPriority = async () => {
+        try {
+          const policies = await PolicyAPI.getPolicies();
+          if (policies.length > 0) {
+            const highestPriority = Math.max(...policies.map(p => p.priority || 0));
+            setMaxPriority(highestPriority + 10); // Add 10 to place at end with room between policies
+          }
+        } catch (err) {
+          console.error('Failed to fetch policies for priority:', err);
+          // Default to 100 if fetch fails
+        }
+      };
+      fetchMaxPriority();
+    }
+  }, [isEditMode]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'version' ? parseInt(value, 10) || 1 : value,
+      [name]: name === 'priority' ? parseInt(value, 10) || maxPriority : 
+              name === 'is_active' ? value === 'true' : value,
     }));
   };
 
@@ -91,31 +118,35 @@ export default function PolicyForm({ existingPolicy = null, onCancel }: PolicyFo
     setIsSubmitting(true);
     setError(null);
 
-    if (!formData.name) {
-        setError('Policy name is required.');
+    // Parse conditions and actions JSON
+    let parsedConditions = {};
+    let parsedActions = {};
+    try {
+        // Attempt to parse conditions JSON
+        parsedConditions = JSON.parse(formData.conditionsStr);
+    } catch (parseError) {
+        setError('Conditions must be valid JSON');
         setIsSubmitting(false);
         return;
     }
     
-    let processedContent: any = {};
     try {
-        // Attempt to parse content if it looks like JSON, otherwise treat as text
-        processedContent = formData.content ? JSON.parse(formData.content) : {};
+        // Attempt to parse actions JSON
+        parsedActions = JSON.parse(formData.actionsStr);
     } catch (parseError) {
-        // If parsing fails, assume it's plain text or invalid JSON
-        console.warn('Content is not valid JSON, saving as text or default object.');
-        processedContent = formData.content || {}; // Save as text or empty object if needed
-        // Depending on DB schema (JSONB vs TEXT), adjust how you save non-JSON
-        // If your DB column is TEXT, you might just save formData.content directly.
-        // If JSONB, you might wrap it: { "text_content": formData.content }
+        setError('Actions must be valid JSON');
+        setIsSubmitting(false);
+        return;
     }
 
     const policyPayload = {
-      name: formData.name!,
+      priority: isEditMode ? formData.priority : maxPriority,
       description: formData.description,
-      content: processedContent,
-      status: formData.status,
-      version: formData.version,
+      conditions: parsedConditions,
+      actions: parsedActions,
+      is_active: formData.is_active === undefined ? true : formData.is_active,
+      applies_to: formData.applies_to,
+      group_id: formData.group_id,
     };
 
     try {
@@ -144,18 +175,7 @@ export default function PolicyForm({ existingPolicy = null, onCancel }: PolicyFo
     <form onSubmit={handleSubmit} className={styles.form}>
       {error && <div className={styles.errorBanner}>{error}</div>}
       
-      <div className={styles.formGroup}>
-        <label htmlFor="name" className={styles.label}>Policy Name</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          className={styles.input}
-        />
-      </div>
+
 
       <div className={styles.formGroup}>
         <label htmlFor="description" className={styles.label}>Description</label>
@@ -169,47 +189,75 @@ export default function PolicyForm({ existingPolicy = null, onCancel }: PolicyFo
         />
       </div>
 
-       <div className={styles.formGroup}>
-        <label htmlFor="content" className={styles.label}>Content (JSON or Text)</label>
+      <div className={styles.formGroup}>
+        <label htmlFor="conditionsStr" className={styles.label}>Conditions (JSON)</label>
         <textarea
-          id="content"
-          name="content"
-          value={formData.content as string} // Cast to string for textarea
+          id="conditionsStr"
+          name="conditionsStr"
+          value={formData.conditionsStr}
           onChange={handleChange}
-          rows={10}
-          className={styles.textarea} // Style as code if desired
-          placeholder='Enter policy content here (e.g., JSON format: { "key": "value" })'
+          rows={8}
+          className={styles.textarea}
+          placeholder='{"amount": {"greaterThan": 1000}, "category": "travel"}'
+          required
         />
       </div>
 
-      <div className={styles.formRow}> // Use formRow for side-by-side elements
-          <div className={styles.formGroup} style={{ marginRight: '1rem' }}>
-            <label htmlFor="version" className={styles.label}>Version</label>
-            <input
-              type="number"
-              id="version"
-              name="version"
-              value={formData.version}
-              onChange={handleChange}
-              min="1"
-              required
-              className={styles.input}
-            />
-          </div>
+      <div className={styles.formGroup}>
+        <label htmlFor="actionsStr" className={styles.label}>Actions (JSON)</label>
+        <textarea
+          id="actionsStr"
+          name="actionsStr"
+          value={formData.actionsStr}
+          onChange={handleChange}
+          rows={8}
+          className={styles.textarea}
+          placeholder='{"requireApproval": true, "approvalLevel": "manager"}'
+          required
+        />
+      </div>
+
+      <div className={styles.formGroup}>
+        <label htmlFor="applies_to" className={styles.label}>Applies To</label>
+        <input
+          type="text"
+          id="applies_to"
+          name="applies_to"
+          value={formData.applies_to as string}
+          onChange={handleChange}
+          className={styles.input}
+          placeholder="expenses, travel, etc."
+        />
+      </div>
+
+      <div className={styles.formRow}>
+          {isEditMode && (
+            <div className={styles.formGroup} style={{ marginRight: '1rem' }}>
+              <label htmlFor="priority" className={styles.label}>Priority (Lower numbers execute first)</label>
+              <input
+                type="number"
+                id="priority"
+                name="priority"
+                value={formData.priority || maxPriority}
+                onChange={handleChange}
+                min="1"
+                className={styles.input}
+              />
+            </div>
+          )}
 
           <div className={styles.formGroup}>
-            <label htmlFor="status" className={styles.label}>Status</label>
+            <label htmlFor="is_active" className={styles.label}>Status</label>
             <select
-              id="status"
-              name="status"
-              value={formData.status}
+              id="is_active"
+              name="is_active"
+              value={formData.is_active === true ? 'true' : 'false'}
               onChange={handleChange}
               required
               className={styles.select}
             >
-              <option value="draft">Draft</option>
-              <option value="active">Active</option>
-              <option value="archived">Archived</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
             </select>
           </div>
       </div>

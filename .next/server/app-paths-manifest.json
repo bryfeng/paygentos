@@ -1,11 +1,10 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/events/route": "app/api/events/route.js",
-  "/api/items/route": "app/api/items/route.js",
+  "/api/payment-methods/route": "app/api/payment-methods/route.js",
+  "/api/spending-policies/[id]/route": "app/api/spending-policies/[id]/route.js",
+  "/api/policies/route": "app/api/policies/route.js",
   "/policies/page": "app/policies/page.js",
-  "/groups/page": "app/groups/page.js",
   "/policies/new/page": "app/policies/new/page.js",
-  "/events/page": "app/events/page.js",
   "/items/page": "app/items/page.js",
-  "/customers/page": "app/customers/page.js"
+  "/customers/page": "app/customers/page.js",
+  "/policies/[id]/page": "app/policies/[id]/page.js"
 }
